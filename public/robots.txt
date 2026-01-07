@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Allow: /attendance
+Allow: /timetable
+Allow: /cgpacalculator
+Allow: /mark
+Allow: /planner
+
+Sitemap: https://www.acadia.asia/sitemap.xml

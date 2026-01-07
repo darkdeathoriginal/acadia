@@ -1,0 +1,126 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
+}
+::-webkit-scrollbar{
+  display: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 0, 0, 0;
+    --background-end-rgb: 0, 0, 0;
+  }
+}
+.snap-container{
+  scroll-snap-type: x mandatory;
+}
+.snap-element{
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: black;
+}
+.ccol {
+  background-color: rgb(69, 69, 69);
+}
+.circle-bg {
+  fill: none;
+  stroke: #0000004e;
+}
+.circle-pg {
+  fill: none;
+  stroke: #ffffff;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.circle-text {
+  font-size: 70%;
+  font-weight: bold;
+  color: white !important;
+}
+table {
+  border: 1px solid #ddd;
+  border-collapse: separate;
+  border-radius: 10px;
+  border-spacing: 0 0;
+}
+
+.menu-icon {
+  width: 20px;
+  height: 14px;
+  cursor: pointer;
+  position: relative;
+  margin-right: 20px;
+}
+.menu-icon span {
+  background-color: rgb(255, 255, 255);
+  height: 2px;
+  position: absolute;
+  width: 100%;
+  left: 0;
+  transition: all 0.3s ease;
+}
+.menu-icon span:first-child {
+  top: 0;
+}
+.menu-icon span:nth-child(2) {
+  top: 6px;
+}
+.menu-icon span:last-child {
+  top: 12px;
+}
+.clicked span:nth-child(2) {
+  opacity: 0;
+}
+.clicked span:first-child,
+.clicked span:last-child {
+  top: 6px;
+  background-color: red;
+}
+.clicked span:first-child {
+  transform: rotate(45deg);
+}
+.clicked span:last-child {
+  transform: rotate(-45deg);
+}
+.menu-list {
+  visibility: hidden;
+  background-color: black;  
+}
+.show {
+  visibility: visible;
+  transition: all 3s ease;
+}
+.reveal{
+  transform: translateX(10rem);
+  animation: reveal 0.3s ease forwards;
+}
+@keyframes reveal {
+  100% {
+    transform: translateX(0);
+  }
+}
+
+.growAn {
+  width: 100;
+  transform-origin: center;
+  transform: scaleX(0);
+  animation: growAnimation 0.3s ease forwards;
+}
+
+@keyframes growAnimation {
+  100% {
+    width: 100%;
+    transform: scaleX(1);
+  }
+}
