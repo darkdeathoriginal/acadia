@@ -1,4 +1,6 @@
+import LoginChecker from "@/components/LoginChecker";
 import Planner from "@/components/pages/Planner";
+import React from "react";
 
 export const metadata = {
   title: "Academic Planner | Acadia",
@@ -26,5 +28,9 @@ export const metadata = {
 };
 
 export default function Page() {
-  return <Planner />;
+  return (
+    <LoginChecker>
+      <Planner />
+    </LoginChecker>
+  );
 }

@@ -1,5 +1,8 @@
 import Service from "@/components/serviceRegister";
+import { GoogleAnalytics } from "@next/third-parties/google";
+import { Analytics } from "@vercel/analytics/react";
 import { Inter } from "next/font/google";
+import React from "react";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -36,7 +39,9 @@ const isDev = process.env.NODE_ENV === "development";
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
+      <GoogleAnalytics gaId={process.env.GTAG} />
       <body className={inter.className + "relative"}>
+        <Analytics />
         <Service />
         {children}
       </body>

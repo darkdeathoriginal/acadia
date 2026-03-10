@@ -9,8 +9,13 @@ export async function POST(req, res) {
   const password = body.pass;
   try {
     const cookie = await getCookie(email, password);
-    return NextResponse.json({ token: cookie });
+
+    return NextResponse.json({
+      token: cookie.cookies,
+      message: cookie.message,
+    });
   } catch (e) {
-    return NextResponse.json({ error: e });
+    console.error(e);
+    return NextResponse.json({ error: e.message }, { status: 500 });
   }
 }

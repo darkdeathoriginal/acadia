@@ -111,14 +111,20 @@ export const fetchWithCache = (
 import cookie from "js-cookie";
 export function delCookie(redirection = true) {
   localStorage.clear();
-  sessionStorage.clear();
-
   cookie.remove("token");
   cookie.remove("batch");
-
   if ("caches" in window) {
-    caches.keys().then((names) => names.forEach((name) => caches.delete(name)));
+    caches.keys().then((names) => {
+      names.forEach((name) => {
+        caches.delete(name);
+      });
+    });
   }
+  if (window.applicationCache && window.applicationCache.abort) {
+    window.applicationCache.abort();
+  }
+
+  sessionStorage.clear();
 
   const nextPath = redirection ? window.location.pathname : "/attendance";
   window.location.href = "/login?redirect=" + nextPath;

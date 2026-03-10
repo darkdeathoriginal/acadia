@@ -1,40 +1,41 @@
+
 export default function sitemap() {
   return [
     {
-      url: `https://www.acadia.works/`,
+      url: `https://www.acadia.asia/`,
       lastModified: new Date(),
-      changeFrequency: "yearly",
+      changeFrequency: 'yearly',
       priority: 1,
     },
     {
-      url: `https://www.acadia.works/mark`,
+      url: `https://www.acadia.asia/mark`,
       lastModified: new Date(),
-      changeFrequency: "yearly",
+      changeFrequency: 'yearly',
       priority: 0.7,
     },
     {
-      url: `https://www.acadia.works/attendance`,
+      url: `https://www.acadia.asia/attendance`,
       lastModified: new Date(),
-      changeFrequency: "yearly",
+      changeFrequency: 'yearly',
       priority: 0.7,
     },
     {
-      url: `https://www.acadia.works/planner`,
+      url: `https://www.acadia.asia/planner`,
       lastModified: new Date(),
-      changeFrequency: "yearly",
+      changeFrequency: 'yearly',
       priority: 0.7,
     },
     {
-      url: `https://www.acadia.works/timetable`,
+      url: `https://www.acadia.asia/timetable`,
       lastModified: new Date(),
-      changeFrequency: "yearly",
+      changeFrequency: 'yearly',
       priority: 0.7,
     },
     {
-      url: `https://www.acadia.works/cgpacalculator`,
+      url: `https://www.acadia.asia/cgpacalculator`,
       lastModified: new Date(),
-      changeFrequency: "yearly",
+      changeFrequency: 'yearly',
       priority: 1,
     },
-  ];
+  ]
 }

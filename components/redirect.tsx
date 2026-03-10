@@ -1,14 +1,13 @@
-'use client'
-import { useEffect } from 'react';
-import Cookie from 'js-cookie';
+"use client";
+import Cookie from "js-cookie";
+import { useEffect } from "react";
 
 export default function Redirect() {
-  const token = Cookie.get('token') || '';
+  const token = Cookie.get("token") || "";
 
   useEffect(() => {
-    console.log(window.location.href);
-    if (!token && window.location.href.split('/').at(-1) !== 'login') {
-        window.location.href = "/login";
+    if (!token && window.location.href.split("/").at(-1) !== "login") {
+      window.location.href = "/login";
     }
   }, [token]);
 

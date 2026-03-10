@@ -1,4 +1,6 @@
+import LoginChecker from "@/components/LoginChecker";
 import Mark from "@/components/pages/Mark";
+import React from "react";
 
 export const metadata = {
   title: "Mark | Acadia",
@@ -18,5 +20,9 @@ export const metadata = {
 };
 
 export default function Page() {
-  return <Mark />;
+  return (
+    <LoginChecker>
+      <Mark />
+    </LoginChecker>
+  );
 }

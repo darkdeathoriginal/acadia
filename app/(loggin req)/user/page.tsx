@@ -1,4 +1,6 @@
+import LoginChecker from "@/components/LoginChecker";
 import User from "@/components/pages/User";
+import React from "react";
 
 export const metadata = {
   title: "User | Acadia",
@@ -7,5 +9,9 @@ export const metadata = {
 };
 
 export default function Page() {
-  return <User />;
+  return (
+    <LoginChecker>
+      <User />
+    </LoginChecker>
+  );
 }

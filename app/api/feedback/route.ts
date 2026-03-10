@@ -34,7 +34,7 @@ export async function POST(req, res) {
     }
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     if (error.response.data.match("INVALID_CSRF_TOKEN")) {
       return NextResponse.json({ error: "RELOGIN" }, { status: 401 });
     }

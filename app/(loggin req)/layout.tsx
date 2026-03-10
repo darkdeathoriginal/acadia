@@ -1,9 +1,11 @@
-import LoginChecker from "@/components/LoginChecker";
+import HandleNotice from "@/components/HandleNotice";
 
 export default function RootLayout({ children }) {
   return (
     <>
-      <LoginChecker>{children}</LoginChecker>
+      {children}
+      {/* <AutoChangelog /> */}
+      <HandleNotice />
     </>
   );
 }

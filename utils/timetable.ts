@@ -21,7 +21,7 @@ export function generateTimetable(
   section,
   variant,
   download = false,
-  room = ""
+  room = "",
 ) {
   const rows = 6;
   let cols = 11;
@@ -40,7 +40,7 @@ export function generateTimetable(
     link.setAttribute("download", `timetable-${variant}.png`);
     link.setAttribute(
       "href",
-      canvas.toDataURL("image/png").replace("image/png", "image/octet-stream")
+      canvas.toDataURL("image/png").replace("image/png", "image/octet-stream"),
     );
     link.click();
     return;
@@ -68,7 +68,7 @@ function drawRoundedRect(
     shadowOffsetX: 0,
     shadowOffsetY: 0,
     shadowBlur: 0,
-  }
+  },
 ) {
   // Add another shadow effect
 
@@ -190,7 +190,7 @@ function renderTimetable(tm, section = "", room, { rows, cols }, config) {
       canvasHeight - margin * 2,
       radius,
       config.bg2,
-      ""
+      "",
     );
   }
   let k = 0;
@@ -230,7 +230,7 @@ function renderTimetable(tm, section = "", room, { rows, cols }, config) {
         shadowOffsetX: header.shadowOffsetX || shadowOffsetX,
         shadowOffsetY: header.shadowOffsetY || shadowOffsetY,
         shadowBlur: header.shadowBlur || shadowBlur,
-      }
+      },
     );
   }
   for (
@@ -298,8 +298,6 @@ function renderTimetable(tm, section = "", room, { rows, cols }, config) {
         }
       }
       if (config.isAlternate) {
-        console.log(l, text);
-
         fillStyle = config.alternate(l);
       }
       font = config.rowFont && l == -1 ? config.rowFont : font;
@@ -322,7 +320,7 @@ function renderTimetable(tm, section = "", room, { rows, cols }, config) {
             shadowOffsetX,
             shadowOffsetY,
             shadowBlur,
-          }
+          },
         );
         j += (canvasHeight - offset - gap * (cols + 1)) / cols;
         l++;
@@ -345,7 +343,7 @@ function renderTimetable(tm, section = "", room, { rows, cols }, config) {
             shadowOffsetX,
             shadowOffsetY,
             shadowBlur,
-          }
+          },
         );
       }
       j += gap;

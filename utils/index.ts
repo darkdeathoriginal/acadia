@@ -1,18 +1,36 @@
-import axios from "axios";
+import axios, { AxiosInstance } from "axios";
+import { wrapper } from "axios-cookiejar-support";
 import cheerio from "cheerio";
 import QueryString from "qs";
+import { CookieJar } from "tough-cookie";
 
-export async function getCookie(username, password): Promise<string> {
+type cookieResponse = {
+  cookies: string;
+  message: string;
+};
+const stringDeviderValue = ";;;justafakevalue;;;";
+
+async function getXcsrfTokenFromJar(jar: CookieJar): Promise<string> {
+  const cookies = await jar.getCookies("https://academia.srmist.edu.in");
+
+  const iamcsrcoo = cookies.find((c) => c.key === "iamcsr")?.value;
+
+  if (!iamcsrcoo) {
+    throw new Error("iamcsrcoo cookie not found");
+  }
+
+  return `iamcsrcoo=${iamcsrcoo}`;
+}
+export async function getCookie(username, password): Promise<cookieResponse> {
   return new Promise(async (resolve, reject) => {
     try {
-      const response1 = await axios.get("https://academia.srmist.edu.in/");
-      const cookies = response1.headers["set-cookie"];
-      let cookie = "";
-      for (let i of cookies) {
-        cookie += i.split(";")[0] + ";";
-      }
-      let parsedCookie = parseCookieString(cookie);
-      cookie += "iamcsr" + "=" + parsedCookie.zccpn + ";";
+      const jar = new CookieJar();
+      const client = wrapper(axios.create({ jar, withCredentials: true }));
+
+      await client.get("https://academia.srmist.edu.in/");
+      await client.get(
+        "https://academia.srmist.edu.in/accounts/p/10002227248/signin?hide_fp=true&orgtype=40&service_language=en&css_url=/49910842/academia-academic-services/downloadPortalCustomCss/login&dcc=true&serviceurl=https%3A%2F%2Facademia.srmist.edu.in%2Fportal%2Facademia-academic-services%2FredirectFromLogin",
+      );
 
       const data1 = QueryString.stringify({
         mode: "primary",
@@ -30,14 +48,18 @@ export async function getCookie(username, password): Promise<string> {
         headers: {
           Origin: "https://academia.srmist.edu.in",
           Host: "academia.srmist.edu.in",
-          Cookie: cookie,
-          "x-zcsrf-token": `iamcsrcoo=${parsedCookie.zccpn}`,
+          "x-zcsrf-token": await getXcsrfTokenFromJar(jar),
           "Content-Type": "application/x-www-form-urlencoded",
         },
         data: data1,
       };
 
-      const response2 = await axios.request(config1);
+      const response2 = await client.request(config1);
+      if (response2.data?.errors) {
+        const errmessage = response2.data.localized_message || "Login failed";
+        throw new Error(errmessage);
+      }
+
       if (!response2?.data?.lookup?.digest) {
         throw new Error("Invalid username");
       }
@@ -56,57 +78,410 @@ export async function getCookie(username, password): Promise<string> {
         maxBodyLength: Infinity,
         url: `https://academia.srmist.edu.in/accounts/p/10002227248/signin/v2/primary/${identifier}/password?digest=${digest}&cli_time=1695726627526&servicename=ZohoCreator&service_language=en&serviceurl=https%3A%2F%2Facademia.srmist.edu.in%2F`,
         headers: {
-          Cookie: cookie,
-          "x-zcsrf-token": `iamcsrcoo=${parsedCookie.zccpn}`,
+          "x-zcsrf-token": await getXcsrfTokenFromJar(jar),
           "Content-Type": "application/json",
         },
         data: data2,
       };
+      function htmlUnescape(str) {
+        return str.replace(/&#(\d+);/g, (_, dec) => String.fromCharCode(dec));
+      }
 
-      const response3 = await axios.request(config2);
+      const response3 = await client.request(config2);
       if (response3.data?.errors) {
-        reject("Invalid password");
+        const errmessage = response3.data.localized_message || "Login failed";
+        throw new Error(htmlUnescape(errmessage));
       }
-      const cookies2 = response3.headers["set-cookie"];
-      let cookie2 = "";
-      for (let i of cookies2) {
-        cookie += i.split(";")[0] + ";";
+      if (response3.data?.passwordauth?.pwdpolicy) {
+        return resolve({
+          cookies:
+            response3.data?.passwordauth?.token +
+            stringDeviderValue +
+            jar.getCookieStringSync("https://academia.srmist.edu.in"),
+          message: response3.data?.passwordauth?.href,
+        });
       }
-      cookie2 += `CT_CSRF_TOKEN=${cookie};iamcsr=${cookie}; _zcsr_tmp=${cookie};ZCNEWUIPUBLICPORTAL=true`;
-      const config3 = {
-        method: "get",
-        maxBodyLength: Infinity,
-        url: "https://academia.srmist.edu.in/portal/academia-academic-services/redirectFromLogin",
-        headers: {
-          Cookie: cookie,
-          Host: "academia.srmist.edu.in",
-          Referer: "https://academia.srmist.edu.in/",
-        },
-      };
-      const response4 = await axios.request(config3);
-      const cookies3 = response4.headers["set-cookie"];
-      let cookie3 = "";
-      for (let i of cookies3) {
-        cookie += i.split(";")[0] + ";";
-      }
-      const parsedCookie3 = parseCookieString(cookie3);
 
-      parsedCookie = parseCookieString(cookie);
-      if (parsedCookie3.zccpn) {
-        parsedCookie.zccpn = parsedCookie3.zccpn;
+      const redirectUrl = response3.data?.passwordauth?.redirect_uri;
+      if (redirectUrl && redirectUrl.includes("block-sessions")) {
+        return resolve({
+          cookies: jar.getCookieStringSync("https://academia.srmist.edu.in"),
+          message: "LOGIN_BLOCKED",
+        });
       }
-      //covert to cookie
-      cookie = "";
-      for (let i of Object.keys(parsedCookie)) {
-        cookie += `${i}=${parsedCookie[i]};`;
-      }
-      resolve(cookie);
+      await client.get(
+        "https://academia.srmist.edu.in/accounts/p/40-10002227248/preannouncement/block-sessions/next",
+      );
+      await client.get(
+        "https://academia.srmist.edu.in/portal/academia-academic-services/redirectFromLogin",
+      );
+
+      const cookie = jar.getCookieStringSync("https://academia.srmist.edu.in");
+      resolve({ cookies: cookie, message: "" });
     } catch (error) {
-      console.log(error);
+      console.error(error);
       reject(error);
     }
   });
 }
+async function addAditionalCookies(client: AxiosInstance) {
+  await client.get(
+    "https://academia.srmist.edu.in/accounts/p/40-10002227248/preannouncement/block-sessions/next",
+  );
+  await client.get(
+    "https://academia.srmist.edu.in/portal/academia-academic-services/redirectFromLogin",
+  );
+}
+export async function forgotPassword(email: string) {
+  const jar = new CookieJar();
+  const client = wrapper(axios.create({ jar, withCredentials: true }));
+  await client.get("https://academia.srmist.edu.in/reset");
+  await client.get(
+    "https://academia.srmist.edu.in/accounts/p/10002227248/password?dcc=true&orgtype=40&serviceurl=https%3A%2F%2Facademia.srmist.edu.in&service_language=en&css_url=/49910842/academia-academic-services/downloadPortalCustomCss/reset",
+  );
+  const data = QueryString.stringify({
+    mode: "primary",
+    serviceurl: "https://academia.srmist.edu.in/",
+    service_language: "en",
+    orgtype: 40,
+  });
+  const config = {
+    method: "post",
+    maxBodyLength: Infinity,
+    url:
+      "https://academia.srmist.edu.in/accounts/p/40-10002227248/password/v2/lookup/" +
+      email,
+    headers: {
+      "x-zcsrf-token": await getXcsrfTokenFromJar(jar),
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    data,
+  };
+  const res = await client.request(config);
+  if (res.data?.errors) {
+    throw new Error(res.data.localized_message || "Password reset failed");
+  }
+  const captcha = await getCaptcha(jar);
+  return {
+    identifier: res.data.lookup.identifier,
+    token: res.data.lookup.token,
+    cookie: jar.getCookieStringSync("https://academia.srmist.edu.in"),
+    captcha,
+  };
+}
+export async function getCaptcha(cookie: string | CookieJar) {
+  const jar =
+    typeof cookie === "string" ? loadJarFromCookieString(cookie) : cookie;
+  const client = wrapper(axios.create({ jar, withCredentials: true }));
+  const captchaConfig = {
+    method: "post",
+    maxBodyLength: Infinity,
+    url: "https://academia.srmist.edu.in/accounts/p/40-10002227248/webclient/v1/captcha",
+    headers: {
+      "x-zcsrf-token": await getXcsrfTokenFromJar(jar),
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    data: JSON.stringify({
+      captcha: { digest: "undefined", usecase: "recovery" },
+    }),
+  };
+  const captchaRes = await client.request(captchaConfig);
+  if (captchaRes.data?.errors) {
+    throw new Error(captchaRes.data.localized_message || "Captcha failed");
+  }
+  const captchaImageResp = await client.get(
+    `https://academia.srmist.edu.in/accounts/p/40-10002227248/webclient/v1/captcha/${captchaRes.data.digest}?darkmode=false`,
+  );
+  if (captchaImageResp.data?.errors) {
+    throw new Error(
+      captchaImageResp.data.localized_message || "Captcha image failed",
+    );
+  }
+  return {
+    image: captchaImageResp.data.captcha.image_bytes,
+    digest: captchaRes.data.digest,
+  };
+}
+
+export async function verifyCaptcha(
+  cookie: string,
+  cdigest: string,
+  captcha: string,
+  token: string,
+  email: string,
+) {
+  const jar = loadJarFromCookieString(cookie);
+  const client = wrapper(axios.create({ jar, withCredentials: true }));
+  const queryString = QueryString.stringify({
+    serviceurl: "https://academia.srmist.edu.in/",
+    service_language: "en",
+    orgtype: 40,
+  });
+  const data = QueryString.stringify({
+    captcha,
+    cdigest,
+    token,
+  });
+
+  const config = {
+    method: "post",
+    maxBodyLength: Infinity,
+    url: `https://academia.srmist.edu.in/accounts/p/40-10002227248/password/v2/lookup/${email}/captcha?${queryString}`,
+    headers: {
+      "x-zcsrf-token": await getXcsrfTokenFromJar(jar),
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    data,
+  };
+  const res = await client.request(config);
+  if (res.data?.errors) {
+    throw new Error(
+      res.data.localized_message || "Captcha verification failed",
+    );
+  }
+  if (res.data.captchaverificationauth.length === 0) {
+    throw new Error("Captcha verification failed");
+  }
+  return {
+    jwt: res.data.captchaverificationauth[0].jwt,
+    e_email:
+      res.data.captchaverificationauth[0].modes.lookup_id.data[0].e_email,
+  };
+}
+export async function sendOtp(
+  cookie: string,
+  jwt: string,
+  e_email: string,
+  email: string,
+  identifier: string,
+) {
+  const jar = loadJarFromCookieString(cookie);
+  const client = wrapper(axios.create({ jar, withCredentials: true }));
+  const queryString = QueryString.stringify({
+    serviceurl: "https://academia.srmist.edu.in/",
+    service_language: "en",
+    orgtype: 40,
+  });
+  const data = JSON.stringify({ emailrecoveryauth: { email_id: email } });
+  const config = {
+    method: "post",
+    maxBodyLength: Infinity,
+    url: `https://academia.srmist.edu.in/accounts/p/40-10002227248/password/v2/primary/${identifier}/mail/${e_email}?${queryString}`,
+    headers: {
+      "x-zcsrf-token": await getXcsrfTokenFromJar(jar),
+      "z-authorization": jwt,
+      "Content-Type": "application/json",
+    },
+    data,
+  };
+  const res = await client.request(config);
+  if (res.data?.errors) {
+    throw new Error(res.data.localized_message || "Sending OTP failed");
+  }
+  return { success: true };
+}
+export async function verifyOtp(
+  cookie: string,
+  identifier: string,
+  jwt: string,
+  e_email: string,
+  otp: string,
+) {
+  const jar = loadJarFromCookieString(cookie);
+  const client = wrapper(axios.create({ jar, withCredentials: true }));
+  const queryString = QueryString.stringify({
+    serviceurl: "https://academia.srmist.edu.in/",
+    service_language: "en",
+    orgtype: 40,
+  });
+  const data = JSON.stringify({ emailrecoveryauth: { code: otp } });
+  const config = {
+    method: "put",
+    maxBodyLength: Infinity,
+    url: `https://academia.srmist.edu.in/accounts/p/40-10002227248/password/v2/primary/${identifier}/mail/${e_email}?${queryString}`,
+    headers: {
+      "x-zcsrf-token": await getXcsrfTokenFromJar(jar),
+      "z-authorization": jwt,
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    data,
+  };
+  const res = await client.request(config);
+  if (res.data?.errors) {
+    throw new Error(res.data.localized_message || "OTP verification failed");
+  }
+  return { success: true };
+}
+
+export async function changePassword(
+  cookie: string,
+  newPassword: string,
+  identifier: string,
+  jwt: string,
+) {
+  const jar = loadJarFromCookieString(cookie);
+  const client = wrapper(axios.create({ jar, withCredentials: true }));
+  const queryString = QueryString.stringify({
+    cli_time: Date.now(),
+    orgtype: 40,
+    service_language: "en",
+    serviceurl: "https://academia.srmist.edu.in",
+  });
+  const data = JSON.stringify({ password: { newpassword: newPassword } });
+  const url = `https://academia.srmist.edu.in/accounts/p/40-10002227248/password/v2/reset/${identifier}/password?${queryString}`;
+  const config = {
+    method: "put",
+    maxBodyLength: Infinity,
+    url: url,
+    headers: {
+      "x-zcsrf-token": await getXcsrfTokenFromJar(jar),
+      "z-authorization": jwt,
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    data,
+  };
+  const res = await client.request(config);
+  const resData = res.data;
+  if (resData?.errors) {
+    throw new Error(resData.localized_message || "Password change failed");
+  }
+  return { success: true };
+}
+export async function closeOtherSessions(
+  cookie: string,
+  identifier: string,
+  jwt: string,
+) {
+  const jar = loadJarFromCookieString(cookie);
+  const client = wrapper(axios.create({ jar, withCredentials: true }));
+  const queryString = QueryString.stringify({
+    serviceurl: "https://academia.srmist.edu.in/",
+    service_language: "en",
+    orgtype: 40,
+  });
+  const data = JSON.stringify({
+    passwordsessionterminate: {
+      rmwebses: true,
+      rmappses: false,
+      inconeauth: false,
+      rmapitok: false,
+    },
+  });
+  const config = {
+    method: "put",
+    maxBodyLength: Infinity,
+    url: `https://academia.srmist.edu.in/accounts/p/40-10002227248/password/v2/reset/${identifier}/closesession?${queryString}`,
+    headers: {
+      "x-zcsrf-token": await getXcsrfTokenFromJar(jar),
+      "z-authorization": jwt,
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    data,
+  };
+  const res = await client.request(config);
+  const resData = res.data;
+  if (resData?.errors) {
+    throw new Error(resData.localized_message || "Closing sessions failed");
+  }
+  return { success: true };
+}
+
+function loadJarFromCookieString(cookie: string): CookieJar {
+  const jar = new CookieJar();
+  cookie
+    .split(";")
+    .map((c) => c.trim())
+    .filter(Boolean)
+    .forEach((c) => jar.setCookieSync(c, "https://academia.srmist.edu.in"));
+  return jar;
+}
+
+export async function resetPassword(
+  compinedCookie: string,
+  newPassword: string,
+  href: string,
+) {
+  const [token, cookie] = compinedCookie.split(stringDeviderValue);
+  const queryString = QueryString.stringify({
+    cli_time: Date.now(),
+    orgtype: 40,
+    service_language: "en",
+    serviceurl:
+      "https://academia.srmist.edu.in/portal/academia-academic-services/redirectFromLogin",
+  });
+
+  const jar = new CookieJar();
+  cookie
+    .split(";")
+    .map((c) => c.trim())
+    .filter(Boolean)
+    .forEach((c) => jar.setCookieSync(c, "https://academia.srmist.edu.in"));
+  const client = wrapper(axios.create({ jar, withCredentials: true }));
+  const data = JSON.stringify({
+    expiry: {
+      newpwd: newPassword,
+    },
+  });
+  const base = href
+    .split("/")
+    .slice(0, -1)
+    .join("/")
+    .replace("primary", "password");
+  const url = `${base}/expiry?${queryString}`;
+
+  const config = {
+    method: "post",
+    maxBodyLength: Infinity,
+    url: url,
+    headers: {
+      "x-zcsrf-token": await getXcsrfTokenFromJar(jar),
+      "z-authorization": `Zoho-ticket ${token}`,
+      "Content-Type": "application/json",
+    },
+    data,
+  };
+  const res = await client.request(config);
+  const resData = res.data;
+  if (resData?.errors) {
+    throw new Error(resData.localized_message || "Password reset failed");
+  }
+}
+
+export async function deleteOtherSessions(cookie: string) {
+  try {
+    const jar = new CookieJar();
+    cookie
+      .split(";")
+      .map((c) => c.trim())
+      .filter(Boolean)
+      .forEach((c) => jar.setCookieSync(c, "https://academia.srmist.edu.in"));
+
+    const client = wrapper(axios.create({ jar, withCredentials: true }));
+    const parsed = parseCookieString(cookie);
+    const config = {
+      method: "delete",
+      url: "https://academia.srmist.edu.in/accounts/p/40-10002227248/webclient/v1/announcement/pre/blocksessions",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "x-zcsrf-token": await getXcsrfTokenFromJar(jar),
+        Referer:
+          "https://academia.srmist.edu.in/accounts/p/40-10002227248/preannouncement/block-sessions",
+        Origin: "https://academia.srmist.edu.in",
+      },
+    };
+    await client.request(config);
+
+    await addAditionalCookies(client);
+    return jar.getCookieStringSync("https://academia.srmist.edu.in");
+  } catch (error) {
+    console.error(
+      "deleteOtherSessions failed:",
+      error?.response?.data || error,
+    );
+    throw error;
+  }
+}
+
 type Section = {
   code: string;
   title: string;
@@ -215,7 +590,7 @@ export async function getTimetable(
   batch,
   join = true,
   regno,
-  section
+  section,
 ): Promise<Timetable> {
   return new Promise(async (resolve, reject) => {
     try {
@@ -309,7 +684,7 @@ export async function getTimetable(
       // }
       resolve(data);
     } catch (error) {
-      console.log(error);
+      console.error(error);
       reject(error);
     }
   });
@@ -318,9 +693,8 @@ export async function updateTimetable(timetable, regno, section) {
   try {
     const url = "http://135.119.198.251:8080/table";
     const { data } = await axios.post(url, { timetable, regno, section });
-    console.log(data);
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
 }
 function replaceUnicodeEscapes(input) {
@@ -401,7 +775,7 @@ export async function getCourseName(cookie, c = false) {
       });
       resolve(data);
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   });
 }
@@ -466,7 +840,7 @@ export async function getMarks(cookie) {
       });
       resolve(data);
     } catch (error) {
-      console.log(error);
+      console.error(error);
       reject({ error: "An error occured" });
     }
   });
@@ -566,7 +940,7 @@ export async function getUserDetails(cookie): Promise<UserDetails> {
         section: section as string,
       });
     } catch (error) {
-      console.log(error);
+      console.error(error);
       reject({ error: "User not found" });
     }
   });
@@ -612,7 +986,7 @@ export function getCodes(cookie) {
 
       resolve(codeObject);
     } catch (error) {
-      console.log(error);
+      console.error(error);
       reject({ error });
     }
   });
@@ -620,7 +994,7 @@ export function getCodes(cookie) {
 
 export async function getPlanner(
   cookie,
-  code = "Academic_Planner_2024_25_EVEN"
+  code = "Academic_Planner_2024_25_EVEN",
 ) {
   if (!code) {
     code = "Academic_Planner_2024_25_EVEN";
@@ -651,7 +1025,7 @@ export async function getPlanner(
 
       a = a
         .replace(/&#x([0-9a-f]+);/gi, (_, code) =>
-          String.fromCharCode(parseInt(code, 16))
+          String.fromCharCode(parseInt(code, 16)),
         )
         .replace(/&lt;/g, "<")
         .replace(/&gt;/g, ">")
@@ -684,7 +1058,7 @@ export async function getPlanner(
       });
       resolve(data);
     } catch (error) {
-      console.log(error);
+      console.error(error);
       resolve({ error: "An error occured" });
     }
   });
@@ -720,7 +1094,7 @@ export async function getSection(cookie) {
       const section = match[1];
       resolve(section);
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   });
 }
@@ -758,7 +1132,7 @@ export async function getFeedbackParams(cookie): Promise<string> {
 }
 export async function getFeedbackCompletion(
   cookie,
-  params
+  params,
 ): Promise<{
   isCompleted: boolean;
   data: any;

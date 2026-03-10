@@ -1,4 +1,6 @@
+import LoginChecker from "@/components/LoginChecker";
 import Feedback from "@/components/pages/Feedback";
+import React from "react";
 
 export const metadata = {
   title: "Feedback | Acadia",
@@ -7,5 +9,9 @@ export const metadata = {
 };
 
 export default function Page() {
-  return <Feedback />;
+  return (
+    <LoginChecker>
+      <Feedback />
+    </LoginChecker>
+  );
 }

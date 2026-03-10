@@ -2,7 +2,7 @@
 
 import Cookies from "js-cookie";
 import Link from "next/link";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function Header({ title }) {
   const [clicked, setClicked] = useState(false);
@@ -24,6 +24,10 @@ export default function Header({ title }) {
     {
       title: "Auto Feedback",
       link: "/feedback",
+    },
+    {
+      title: "Reset Password",
+      link: "/forgot-password",
     },
   ];
 

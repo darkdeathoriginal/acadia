@@ -1,3 +1,5 @@
+import React from "react";
+
 export default function Progress({ percentage, width }) {
   const radius = width / 2.15;
   const da = radius * Math.PI * 2;
@@ -27,7 +29,7 @@ export default function Progress({ percentage, width }) {
           <animate
             attributeName="stroke-dashoffset"
             from={da}
-            to={doff || 0}
+            to={doff}
             dur="0.4s"
             begin="0s"
             calcMode="spline"

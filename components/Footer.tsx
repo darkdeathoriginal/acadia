@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import React from "react";
 const items = [
   {
     icon: "📈",
@@ -45,4 +46,5 @@ export default function Footer() {
       </div>
     </div>
   );
+  return null;
 }
