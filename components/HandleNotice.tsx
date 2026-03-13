@@ -5,13 +5,13 @@ import { NoticePopup } from "./NoticePopup";
 export default function HandleNotice() {
   return (
     <NoticePopup
-      noticeId="acadia-open"
-      title="Acadia is now Open Source!"
+      noticeId="telegram-group"
+      title="Join our Telegram Group!"
       image=""
       imageAlt="Acadia"
-      link="https://github.com/darkdeathoriginal/acadia"
-      linkAlt="GitHub Repository"
-      description="Acadia is now open source! Explore the code, contribute, or customize it for your needs. Check out our GitHub repository to get started."
+      link="https://t.me/+8-SMvXgFfO8xNTQ9"
+      linkAlt="Telegram Group"
+      description="Join our Telegram group for the latest updates and support!"
       onLinkClick={() => {
         // fetch("/api/count", {
         //   method: "POST",
