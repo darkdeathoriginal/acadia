@@ -109,12 +109,7 @@ export async function getCookie(username, password): Promise<cookieResponse> {
           message: "LOGIN_BLOCKED",
         });
       }
-      await client.get(
-        "https://academia.srmist.edu.in/accounts/p/40-10002227248/preannouncement/block-sessions/next",
-      );
-      await client.get(
-        "https://academia.srmist.edu.in/portal/academia-academic-services/redirectFromLogin",
-      );
+      await addAditionalCookies(client);
 
       const cookie = jar.getCookieStringSync("https://academia.srmist.edu.in");
       resolve({ cookies: cookie, message: "" });
@@ -1174,6 +1169,8 @@ export function submitFeedback(data, cookie) {
   const url =
     "https://academia.srmist.edu.in/srm_university/academia-academic-services/form/Student_Feedback_Form/edit";
   const form = new FormData();
+  console.log(data);
+
   for (let key of Object.keys(data)) {
     if (typeof data[key] === "object") {
       form.append(key, JSON.stringify(data[key]));
@@ -1181,7 +1178,13 @@ export function submitFeedback(data, cookie) {
       form.append(key, data[key]);
     }
   }
-  const cookieObj = parseCookieString(cookie);
+  const jar = loadJarFromCookieString(cookie);
+  let zccpn = jar
+    .getCookiesSync("https://academia.srmist.edu.in")
+    .find((c) => c.key === "zccpn");
+  if (zccpn) {
+    form.append("zccpn", zccpn.value);
+  }
   return axios.post(url, form, {
     headers: {
       Cookie: cookie,
