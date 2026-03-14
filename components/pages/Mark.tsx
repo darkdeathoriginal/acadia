@@ -22,7 +22,7 @@ export default function Mark() {
   let subjectsWithMarks = 0;
   let globalPercentage = 0;
 
-  if (marksData && Array.isArray(marksData) && !marksData.error) {
+  if (marksData && !(marksData as any).error && Array.isArray(marksData)) {
     marksData.forEach((subject) => {
       let localTotal = 0;
       let localMax = 0;
@@ -120,8 +120,8 @@ export default function Mark() {
           )}
 
           {marksData &&
+            !(marksData as any).error &&
             Array.isArray(marksData) &&
-            !marksData.error &&
             marksData.map((course, i) => {
               // Process sum logic for this subject
               let subjObtained = 0;
@@ -212,8 +212,8 @@ export default function Mark() {
             })}
 
           {marksData &&
+            !(marksData as any).error &&
             Array.isArray(marksData) &&
-            !marksData.error &&
             marksData.length === 0 && (
               <div className="text-center py-10 text-gray-500 border border-white/5 rounded-2xl bg-[#0d0d12]">
                 No marks found

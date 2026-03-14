@@ -20,7 +20,7 @@ export default function Home() {
               Features
             </Link>
             <Link href="#" className="hover:text-white transition-colors">
-              What's New
+              What&apos;s New
             </Link>
             <Link href="#" className="hover:text-white transition-colors">
               About
@@ -111,7 +111,7 @@ export default function Home() {
               <div className="border border-white/10 rounded-xl bg-[#0f0f0f] p-4 text-xs shadow-2xl">
                 <div className="flex justify-between items-center mb-4">
                   <span className="font-semibold text-gray-300">
-                    Today's Schedule
+                    Today&apos;s Schedule
                   </span>
                   <span className="px-2 py-1 bg-white/10 rounded-md text-gray-400 border border-white/5">
                     Day Order 3
@@ -149,8 +149,8 @@ export default function Home() {
             </h3>
             <p className="text-gray-400 max-w-md z-10 mb-12 text-sm md:text-base">
               Full offline support with intelligent caching. Access attendance,
-              marks, and timetable even without internet. Auto-syncs when you're
-              back online.
+              marks, and timetable even without internet. Auto-syncs when
+              you&apos;re back online.
             </p>
 
             <div className="mt-auto border border-white/10 rounded-2xl bg-[#0a0a0a] p-6 text-sm z-10 shadow-2xl relative">
@@ -161,7 +161,7 @@ export default function Home() {
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 rounded-full bg-yellow-500 mb-0.5"></div>
                     <span className="font-semibold text-white text-base">
-                      You're Offline
+                      You&apos;re Offline
                     </span>
                   </div>
                   <span className="px-3 py-1 bg-[#2a1708] border border-orange-500/30 text-orange-400 rounded-full text-xs font-semibold">
