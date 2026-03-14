@@ -1,6 +1,7 @@
 import axios, { AxiosInstance } from "axios";
 import { wrapper } from "axios-cookiejar-support";
 import cheerio from "cheerio";
+import _ from "lodash";
 import QueryString from "qs";
 import { CookieJar } from "tough-cookie";
 
@@ -579,6 +580,29 @@ type Day = {
 type Timetable = {
   [day: string]: Day;
 };
+const uniFiedCache = {};
+async function getUnifiedTimetable(url, cookie) {
+  if (uniFiedCache[url]) {
+    return uniFiedCache[url];
+  }
+  const res = await axios.request({
+    method: "get",
+    maxBodyLength: Infinity,
+    url,
+    headers: {
+      Cookie: cookie,
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+  });
+  uniFiedCache[url] = res;
+  return res;
+}
+
+const timetableCache = new Map<
+  string,
+  { data: Timetable; timestamp: number }
+>();
+const CACHE_TTL = 1000 * 60 * 15; // 15 minutes
 
 export async function getTimetable(
   cookie,
@@ -590,18 +614,11 @@ export async function getTimetable(
   return new Promise(async (resolve, reject) => {
     try {
       const [match, timetableResponse] = await Promise.all([
-        getCourseName(cookie),
-        axios.request({
-          method: "get",
-          maxBodyLength: Infinity,
-          url:
-            `https://academia.srmist.edu.in/srm_university/academia-academic-services/page/Unified_Time_Table_2025_` +
-            (batch == "1" ? "Batch_1" : "batch_2"),
-          headers: {
-            Cookie: cookie,
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-        }),
+        _getCourseName(cookie),
+        getUnifiedTimetable(
+          `https://academia.srmist.edu.in/srm_university/academia-academic-services/page/My_Time_Table_2023_24?batch=${batch}${join ? `&join=true&regno=${regno}&section=${section}` : ""}`,
+          cookie,
+        ),
       ]);
       let resp = timetableResponse.data;
       if (resp.match("Error-msg")) {
@@ -697,6 +714,7 @@ function replaceUnicodeEscapes(input) {
     return String.fromCharCode(parseInt(match.substr(2), 16));
   });
 }
+const _getCourseName = _.memoize(getCourseName);
 export async function getCourseName(cookie, c = false) {
   return new Promise(async (resolve, reject) => {
     const url = c
