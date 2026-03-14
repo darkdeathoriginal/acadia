@@ -374,7 +374,7 @@ export default function Timetable({ tm = false, section }) {
       <aside className="w-64 border-r border-[#1a1a24] bg-[#0A0A0A] hidden md:flex md:flex-col justify-between h-full flex-shrink-0">
         <div className="overflow-y-auto" style={{ scrollbarWidth: "none" }}>
           <div className="p-6 pb-2">
-            <div className="text-2xl font-bold tracking-tight">PortalX</div>
+            <div className="text-2xl font-bold tracking-tight">Acadia</div>
           </div>
           <nav className="px-4 space-y-1 mt-4 pb-4">
             {sidebarLinks.map((link) => {

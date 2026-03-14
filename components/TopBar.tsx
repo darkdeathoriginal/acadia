@@ -9,7 +9,7 @@ export default function TopBar({ user }: { user: any }) {
           <div className="w-5 h-[2px] bg-white rounded-full"></div>
         </div>
         <span className="text-[22px] font-bold text-white tracking-tight">
-          PortalX
+          Acadia
         </span>
       </div>
 
