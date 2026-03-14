@@ -8,7 +8,6 @@ import {
   BarChart3,
   CalendarCheck,
   CalendarDays,
-  Clock,
   GraduationCap,
   Home,
   LogOut,
@@ -427,9 +426,6 @@ export default function Timetable({ tm = false, section }) {
             <button className="text-gray-400 hover:text-white transition-colors">
               <Moon size={20} />
             </button>
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-blue-900/30 bg-blue-900/10 text-blue-400 text-xs font-semibold">
-              <Clock className="w-3.5 h-3.5" /> Trial: 3d left
-            </div>
             <div className="w-8 h-8 rounded-md bg-[#252525] flex justify-center items-center font-bold text-sm cursor-pointer border border-white/10 text-gray-200 ml-2">
               {user?.name ? user.name.charAt(0).toUpperCase() : "A"}
             </div>
