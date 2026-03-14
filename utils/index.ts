@@ -616,7 +616,8 @@ export async function getTimetable(
       const [match, timetableResponse] = await Promise.all([
         _getCourseName(cookie),
         getUnifiedTimetable(
-          `https://academia.srmist.edu.in/srm_university/academia-academic-services/page/My_Time_Table_2023_24?batch=${batch}${join ? `&join=true&regno=${regno}&section=${section}` : ""}`,
+          `https://academia.srmist.edu.in/srm_university/academia-academic-services/page/Unified_Time_Table_2025_` +
+            (batch == "1" ? "Batch_1" : "batch_2"),
           cookie,
         ),
       ]);
@@ -689,7 +690,7 @@ export async function getTimetable(
               setTimeout(() => {
                 console.log("tm Timed out");
                 resolve(0);
-              }, 1000)
+              }, 1000),
             ),
           ]);
         } catch (error) {}

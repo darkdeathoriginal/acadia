@@ -3,7 +3,6 @@
 import cookie from "js-cookie"; // Use the library for consistency
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import Footer from "./Footer";
 
 export default function LoginChecker({ children }) {
   const router = useRouter();
@@ -26,10 +25,5 @@ export default function LoginChecker({ children }) {
     return null; // Or return <Spinner />
   }
 
-  return (
-    <div>
-      {children}
-      <Footer />
-    </div>
-  );
+  return <>{children}</>;
 }

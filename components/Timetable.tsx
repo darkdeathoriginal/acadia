@@ -571,11 +571,37 @@ export default function Timetable({ tm = false, section }) {
         </div>
       </main>
 
-      <div className="md:hidden fixed top-0 left-0 right-0 p-4 flex justify-between items-center bg-[#09090b]/80 backdrop-blur-md z-50 border-b border-white/5 mt-14">
-        <div className="text-xl font-bold">PortalX</div>
-        <div className="w-8 h-8 rounded-md bg-[#252525] flex justify-center items-center font-bold text-sm border border-white/10 text-gray-200">
-          {user?.name ? user.name.charAt(0).toUpperCase() : "A"}
-        </div>
+      {/* Mobile Nav Bottom overlay */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 p-4 flex justify-around items-center bg-[#09090b]/80 backdrop-blur-md z-50 border-t border-white/5">
+        {sidebarLinks
+          .filter((l) =>
+            [
+              "Overview",
+              "Attendance",
+              "Timetable",
+              "Marks & Grades",
+              "Calendar",
+            ].includes(l.name),
+          )
+          .map((link) => {
+            const Icon = link.icon;
+            const isActive = "Timetable" === link.name;
+            return (
+              <Link
+                key={link.name}
+                href={link.href}
+                className="flex flex-col items-center gap-1 p-2"
+              >
+                <Icon
+                  size={20}
+                  className={isActive ? "text-white" : "text-gray-500"}
+                />
+                {isActive && (
+                  <div className="w-1 h-1 rounded-full bg-white mt-1"></div>
+                )}
+              </Link>
+            );
+          })}
       </div>
     </div>
   );
