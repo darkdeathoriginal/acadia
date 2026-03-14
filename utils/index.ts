@@ -796,7 +796,7 @@ export async function getMarks(cookie) {
   return new Promise(async (resolve, reject) => {
     try {
       const [cName, timetableResponse] = await Promise.all([
-        getCourseName(cookie),
+        _getCourseName(cookie),
         axios.request({
           method: "get",
           maxBodyLength: Infinity,
