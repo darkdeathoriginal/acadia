@@ -1005,6 +1005,8 @@ export function getCodes(cookie) {
   });
 }
 
+export const _getPlanner = _.memoize(getPlanner, (_, code) => `${code}`);
+
 export async function getPlanner(
   cookie,
   code = "Academic_Planner_2024_25_EVEN",
