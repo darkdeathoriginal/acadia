@@ -681,19 +681,19 @@ export async function getTimetable(
         prev = time;
       }
 
-      // if (section && regno) {
-      //   try {
-      //     await Promise.race([
-      //       updateTimetable(data2, regno, section),
-      //       new Promise((resolve, reject) =>
-      //         setTimeout(() => {
-      //           console.log("tm Timed out");
-      //           resolve(0);
-      //         }, 1000)
-      //       ),
-      //     ]);
-      //   } catch (error) {}
-      // }
+      if (section && regno) {
+        try {
+          await Promise.race([
+            updateTimetable(data2, regno, section),
+            new Promise((resolve, reject) =>
+              setTimeout(() => {
+                console.log("tm Timed out");
+                resolve(0);
+              }, 1000)
+            ),
+          ]);
+        } catch (error) {}
+      }
       resolve(data);
     } catch (error) {
       console.error(error);

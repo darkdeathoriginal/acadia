@@ -1,47 +1,250 @@
 "use client";
-import Header from "@/components/Header";
 import UserLoader from "@/components/Loaders/userLoader";
 import useFetchWithCache from "@/hooks/useFetchWithCache";
 import { delCookie } from "@/utils/helpers";
-import React from "react";
+import {
+  Activity,
+  BarChart3,
+  BookOpen,
+  CalendarCheck,
+  CalendarDays,
+  Calendar as CalendarIcon,
+  Clock,
+  Download,
+  GraduationCap,
+  Home,
+  LogOut,
+  MessageSquare,
+  Moon,
+  Percent,
+  TrendingUp,
+} from "lucide-react";
+import Link from "next/link";
+import { useState } from "react";
 
 export default function User() {
   const { data, loading, error } = useFetchWithCache(
     "/api/user",
     "cache_us",
-    1000 * 60 * 60
+    1000 * 60 * 60,
   );
 
+  const [activeTab, setActiveTab] = useState("Overview");
+
+  const sidebarLinks = [
+    { name: "Overview", icon: Home, href: "/user" },
+    { name: "Attendance", icon: CalendarCheck, href: "/attendance" },
+    { name: "Marks & Grades", icon: GraduationCap, href: "/mark" },
+    { name: "Timetable", icon: BarChart3, href: "/timetable" },
+    { name: "Courses", icon: Activity, href: "#" },
+    { name: "Calendar", icon: CalendarDays, href: "/planner" },
+    { name: "GPA Calculator", icon: Percent, href: "/cgpacalculator" },
+    { name: "Course Feedback", icon: MessageSquare, href: "/feedback" },
+    { name: "Report Issue", icon: MessageSquare, href: "#" },
+  ];
+
+  const todayDate = new Date().toLocaleDateString("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+
+  if (!data && loading) {
+    return <UserLoader />;
+  }
+
   return (
-    <>
-      <Header title={"User"} />
-      {data && (
-        <div className="flex flex-col justify-center items-center text-white">
-          <div className="flex flex-col  mt-20 gap-3 p-4 border rounded-md xl:w-1/2 w-10/12">
-            <div className="bg-slate-600 rounded-md p-1">
-              <h2 className="w-auto">{data.name}</h2>
+    <div className="flex h-screen bg-[#060608] text-white font-sans overflow-hidden">
+      {/* Sidebar */}
+      <aside className="w-64 border-r border-[#1a1a24] bg-[#0A0A0A] flex flex-col justify-between hidden md:flex h-full flex-shrink-0">
+        <div className="overflow-y-auto">
+          <div className="p-6">
+            <div className="text-2xl font-bold tracking-tight">Acadia</div>
+          </div>
+          <nav className="px-4 space-y-1 mt-4 pb-4">
+            {sidebarLinks.map((link) => {
+              const Icon = link.icon;
+              const isActive = activeTab === link.name;
+              return (
+                <Link
+                  key={link.name}
+                  href={link.href}
+                  onClick={() => setActiveTab(link.name)}
+                  className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 text-sm font-medium ${
+                    isActive
+                      ? "bg-white text-black font-semibold"
+                      : "text-gray-400 hover:text-white hover:bg-white/5"
+                  }`}
+                >
+                  <Icon
+                    size={18}
+                    className={isActive ? "text-black" : "text-gray-400"}
+                  />
+                  {link.name}
+                </Link>
+              );
+            })}
+          </nav>
+        </div>
+
+        {/* Sidebar Footer Component */}
+        <div className="p-6 pb-8 border-t border-[#1a1a24] bg-[#0A0A0A]">
+          <div className="flex items-center justify-between">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-green-600 to-yellow-600 flex justify-center items-center font-bold text-lg text-white shadow-lg shadow-green-900/20 relative cursor-pointer ring-2 ring-[#0A0A0A]">
+              {data?.name ? data.name.charAt(0).toUpperCase() : "N"}
+              <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-[#0a0a0a] rounded-full"></div>
             </div>
-            <div className="bg-slate-600 rounded-md p-1">
-              <h2>{data.roll}</h2>
-            </div>
-            <div className="bg-slate-600 rounded-md p-1">
-              <h1>{data.program + " " + data.department}</h1>
+            <button
+              onClick={() => delCookie()}
+              className="p-2 aspect-square rounded-full hover:bg-white/10 transition-colors text-gray-400 hover:text-red-400"
+              title="Logout"
+            >
+              <LogOut size={16} />
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      {/* Main Content Area */}
+      <main className="flex-1 flex flex-col h-full overflow-y-auto w-full relative bg-[#09090b]">
+        {/* Top bar (for desktop layout consistency matching image) */}
+        <header className="flex justify-end items-center px-8 py-6 sticky top-0 bg-[#09090b]/80 backdrop-blur-md z-10 hidden md:flex">
+          <div className="flex items-center gap-6">
+            <button className="text-gray-400 hover:text-white transition-colors">
+              <Moon size={20} />
+            </button>
+            <div className="w-8 h-8 rounded-md bg-gray-800 flex justify-center items-center font-semibold text-sm cursor-pointer border border-white/10">
+              {data?.name ? data.name.charAt(0).toUpperCase() : "S"}
             </div>
           </div>
-          <div className="mx-5 my-5">
-            <div className="flex p-44 justify-center px-10 py-2 border rounded-lg">
-              <button
-                className="bg-red-600 px-6 py-1 rounded-md"
-                onClick={() => delCookie()}
-              >
-                {" "}
-                Logout
-              </button>
+        </header>
+
+        {/* User Content */}
+        <div className="px-6 md:px-10 pb-20 pt-6 max-w-6xl w-full">
+          {/* Welcome Header */}
+          <div className="mb-10 animate-fade-in-up">
+            <h1 className="text-3xl md:text-[34px] font-bold mb-2 tracking-tight text-white">
+              Welcome back, {data?.name ? data.name.split(" ")[0] : "Student"}!
+            </h1>
+            <p className="text-gray-400 text-sm">
+              Here's your academic overview for today - {todayDate}
+            </p>
+          </div>
+
+          {/* Stats Grid */}
+          <div
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-12 animate-fade-in-up delay-100"
+            style={{ animationDelay: "100ms" }}
+          >
+            {/* Attendance Card */}
+            <div className="p-5 rounded-2xl bg-[#0d0d12] border border-[#112a20] relative overflow-hidden group hover:border-[#1a4031] transition-colors">
+              <div className="flex justify-between items-start mb-6 z-10 relative">
+                <div className="w-10 h-10 rounded-lg bg-[#092218] flex items-center justify-center border border-[#112a20]">
+                  <TrendingUp className="text-[#22c55e] w-5 h-5" />
+                </div>
+                <span className="text-2xl font-bold text-[#22c55e]">94%</span>
+              </div>
+              <p className="text-gray-400 text-sm font-medium z-10 relative">
+                Attendance
+              </p>
+              <div className="absolute top-0 right-0 w-32 h-32 bg-[#22c55e]/5 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none"></div>
+            </div>
+
+            {/* Overall Marks Card */}
+            <div className="p-5 rounded-2xl bg-[#0d0d12] border border-[#10203a] relative overflow-hidden group hover:border-[#183057] transition-colors">
+              <div className="flex justify-between items-start mb-6 z-10 relative">
+                <div className="w-10 h-10 rounded-lg bg-[#0a1835] flex items-center justify-center border border-[#10203a]">
+                  <GraduationCap className="text-[#3b82f6] w-5 h-5" />
+                </div>
+                <span className="text-2xl font-bold text-[#3b82f6]">83%</span>
+              </div>
+              <p className="text-gray-400 text-sm font-medium z-10 relative">
+                Overall Marks
+              </p>
+              <div className="absolute top-0 right-0 w-32 h-32 bg-[#3b82f6]/5 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none"></div>
+            </div>
+
+            {/* Total Subjects Card */}
+            <div className="p-5 rounded-2xl bg-[#0d0d12] border border-[#281535] relative overflow-hidden group hover:border-[#3c2050] transition-colors">
+              <div className="flex justify-between items-start mb-6 z-10 relative">
+                <div className="w-10 h-10 rounded-lg bg-[#1d0d2b] flex items-center justify-center border border-[#281535]">
+                  <BookOpen className="text-[#a855f7] w-5 h-5" />
+                </div>
+                <span className="text-2xl font-bold text-[#a855f7]">6</span>
+              </div>
+              <p className="text-gray-400 text-sm font-medium z-10 relative">
+                Total Subjects
+              </p>
+              <div className="absolute top-0 right-0 w-32 h-32 bg-[#a855f7]/5 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none"></div>
+            </div>
+
+            {/* Day Order Card */}
+            <div className="p-5 rounded-2xl bg-[#0d0d12] border border-[#352010] relative overflow-hidden group hover:border-[#503018] transition-colors">
+              <div className="flex justify-between items-start mb-6 z-10 relative">
+                <div className="w-10 h-10 rounded-lg bg-[#2b1509] flex items-center justify-center border border-[#352010]">
+                  <CalendarIcon className="text-[#f97316] w-5 h-5" />
+                </div>
+                <span className="text-xl md:text-2xl font-bold text-[#f97316]">
+                  Holiday
+                </span>
+              </div>
+              <p className="text-gray-400 text-sm font-medium z-10 relative">
+                Day Order
+              </p>
+              <div className="absolute top-0 right-0 w-32 h-32 bg-[#f97316]/5 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none"></div>
+            </div>
+          </div>
+
+          {/* Today's Schedule Section */}
+          <div
+            className="animate-fade-in-up delay-200"
+            style={{ animationDelay: "200ms" }}
+          >
+            <div className="flex justify-between items-center mb-6">
+              <div className="flex items-center gap-2">
+                <Clock className="text-gray-400 w-5 h-5" />
+                <h2 className="text-lg font-bold text-white">
+                  Today's Schedule
+                </h2>
+                <button className="ml-2 text-gray-500 hover:text-white transition-colors">
+                  <Download className="w-4 h-4 cursor-pointer" />
+                </button>
+              </div>
+              <div className="px-4 py-1.5 rounded-full border border-[#22c55e]/30 text-[#22c55e] text-xs font-semibold tracking-wide">
+                Holiday
+              </div>
+            </div>
+
+            <p className="text-gray-400 text-sm mb-20 pb-4 border-b border-white/5">
+              No classes scheduled for today - enjoy your break!
+            </p>
+
+            {/* Holiday Illustration */}
+            <div className="flex flex-col items-center justify-center py-12 mt-4">
+              <div className="w-20 h-20 rounded-full bg-[#0a1b14] border border-[#112a20] flex items-center justify-center mb-6 relative">
+                <div className="absolute inset-0 bg-[#22c55e]/10 blur-xl rounded-full"></div>
+                <CalendarIcon className="text-[#22c55e] w-8 h-8 relative z-10" />
+              </div>
+              <h3 className="text-lg font-bold mb-3 text-white">
+                Holiday Today!
+              </h3>
+              <p className="text-gray-400 text-center max-w-sm text-sm leading-relaxed">
+                Take this time to relax, recharge, and prepare for upcoming
+                classes. Enjoy your day off!
+              </p>
             </div>
           </div>
         </div>
-      )}
-      {!data && loading && <UserLoader />}
-    </>
+      </main>
+
+      {/* Mobile Nav Header overlay - only visible on small screens */}
+      <div className="md:hidden fixed top-0 left-0 right-0 p-4 flex justify-between items-center bg-[#09090b]/80 backdrop-blur-md z-50 border-b border-white/5 mt-14">
+        <div className="text-xl font-bold">Acadia</div>
+        <div className="w-8 h-8 rounded-md bg-gray-800 flex justify-center items-center font-semibold text-sm border border-white/10">
+          {data?.name ? data.name.charAt(0).toUpperCase() : "S"}
+        </div>
+      </div>
+    </div>
   );
 }

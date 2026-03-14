@@ -1,7 +1,5 @@
-import Header from "@/components/Header";
 import LoginChecker from "@/components/LoginChecker";
 import Timetable from "@/components/Timetable";
-import React from "react";
 
 export const metadata = {
   title: "Timetable | Acadia",
@@ -30,18 +28,15 @@ export default async function page() {
   let data = true;
   return (
     <LoginChecker>
-      <div>
-        <Header title={"🗓️Timetable"} />
-        <div className="text-white">
-          {data ? (
-            <Timetable tm={false} section={null} />
-          ) : (
-            <h3 className="text-red-600 text-xl">
-              An error occured. Please refresh the page
-            </h3>
-          )}
+      {data ? (
+        <Timetable tm={false} section={null} />
+      ) : (
+        <div className="flex h-screen items-center justify-center bg-[#060608]">
+          <h3 className="text-red-600 text-xl font-bold">
+            An error occured. Please refresh the page
+          </h3>
         </div>
-      </div>
+      )}
     </LoginChecker>
   );
 }
