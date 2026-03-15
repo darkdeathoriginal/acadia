@@ -17,6 +17,8 @@ export default function CgpaCalculator() {
     "cache_at",
   );
 
+  const { data: marksData } = useFetchWithCache("/api/mark", "cache_mk");
+
   const [courses, setCourses] = useState<
     {
       id: number;
@@ -47,17 +49,63 @@ export default function CgpaCalculator() {
   };
 
   const handleImportCourses = () => {
-    if (attendanceData && Array.isArray(attendanceData)) {
-      const imported = attendanceData.map((c, i) => ({
-        id: Date.now() + i,
-        name: c.title || c.code || `Course ${i + 1}`,
-        included: true,
-        currentScore: "",
-        totalScore: "10",
-        expectedRemaining: "50",
-        credits: c.slot === "LAB" ? 2 : 3, // basic assumption depending on lab
-        targetGrade: 5,
-      }));
+    // Favor Marks Data because it has exactly everything: name, code, Marks (total "X/Y"), and Credit.
+    if (marksData && Array.isArray(marksData) && marksData.length > 0) {
+      const imported = marksData.map((m: any, i) => {
+        let obtained = 0;
+        let assessed = 0;
+        if (m.total && typeof m.total === "string" && m.total.includes("/")) {
+          const parts = m.total.split("/");
+          obtained = parseFloat(parts[0]) || 0;
+          assessed = parseFloat(parts[1]) || 0;
+        }
+
+        const credits = Number(m.credit) || (m.type === "Practical" ? 2 : 3);
+
+        const expectedRemainingStr =
+          assessed < 100 ? String(100 - assessed) : "0";
+
+        // Guess target grade based on performance so far or default to A
+        let predictedPercent = assessed > 0 ? (obtained / assessed) * 100 : 80;
+        let targetG = 3; // "A"
+        if (predictedPercent >= 90)
+          targetG = 5; // "O"
+        else if (predictedPercent >= 85)
+          targetG = 4; // "A+"
+        else if (predictedPercent >= 80)
+          targetG = 3; // "A"
+        else if (predictedPercent >= 75)
+          targetG = 2; // "B+"
+        else if (predictedPercent >= 70)
+          targetG = 1; // "B"
+        else targetG = 0; // "C"
+
+        return {
+          id: Date.now() + i,
+          name: m.name || m.code || `Course ${i + 1}`,
+          included: true,
+          currentScore: obtained > 0 ? obtained.toFixed(1) : "",
+          totalScore: assessed > 0 ? String(assessed) : "10",
+          expectedRemaining: expectedRemainingStr,
+          credits,
+          targetGrade: targetG, // Dynamically guessed point
+        };
+      });
+      setCourses(imported);
+    } else if (attendanceData && Array.isArray(attendanceData)) {
+      // Fallback
+      const imported = attendanceData.map((c, i) => {
+        return {
+          id: Date.now() + i,
+          name: c.title || c.code || `Course ${i + 1}`,
+          included: true,
+          currentScore: "",
+          totalScore: "10",
+          expectedRemaining: "50",
+          credits: c.slot === "LAB" ? 2 : 3,
+          targetGrade: 5,
+        };
+      });
       setCourses(imported);
     } else {
       handleAddCourse();
@@ -79,12 +127,12 @@ export default function CgpaCalculator() {
   };
 
   const grades = [
-    { label: "C", value: 0, pts: 5 },
-    { label: "B", value: 1, pts: 6 },
-    { label: "B+", value: 2, pts: 7 },
-    { label: "A", value: 3, pts: 8 },
-    { label: "A+", value: 4, pts: 9 },
-    { label: "O", value: 5, pts: 10 },
+    { label: "C", value: 0, pts: 5, threshold: 45 },
+    { label: "B", value: 1, pts: 6, threshold: 50 },
+    { label: "B+", value: 2, pts: 7, threshold: 60 },
+    { label: "A", value: 3, pts: 8, threshold: 70 },
+    { label: "A+", value: 4, pts: 9, threshold: 80 },
+    { label: "O", value: 5, pts: 10, threshold: 90 },
   ];
 
   const { cgpa, calculatedCredits, subjectsCount } = useMemo(() => {
@@ -201,11 +249,42 @@ export default function CgpaCalculator() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {courses.map((course) => {
-                const pts =
-                  grades.find((g) => g.value === course.targetGrade)?.pts || 0;
-                const gradeLabel =
-                  grades.find((g) => g.value === course.targetGrade)?.label ||
-                  "C";
+                const gradeObj = grades.find(
+                  (g) => g.value === course.targetGrade,
+                );
+                const pts = gradeObj?.pts || 0;
+                const gradeLabel = gradeObj?.label || "C";
+                const threshold = gradeObj?.threshold || 0;
+
+                const currentSc = Number(course.currentScore) || 0;
+                const expectedRem = Number(course.expectedRemaining) || 0;
+                const totalInternals = currentSc + expectedRem;
+
+                // Max weight for finals in SRM is typically 50.
+                const finalsNeededRaw = threshold - totalInternals;
+                const finalsNeeded = Math.max(0, finalsNeededRaw); // minimum 0
+
+                let diffLabel = "Easy";
+                let diffColor =
+                  "text-[#22c55e] bg-[#22c55e]/10 border-[#22c55e]/20";
+
+                if (finalsNeededRaw > 50) {
+                  diffLabel = "Impossible";
+                  diffColor =
+                    "text-purple-500 bg-purple-500/10 border-purple-500/20";
+                } else if (finalsNeeded > 45) {
+                  diffLabel = "Hard";
+                  diffColor = "text-red-500 bg-red-500/10 border-red-500/20";
+                } else if (finalsNeeded > 35) {
+                  diffLabel = "Medium";
+                  diffColor =
+                    "text-yellow-500 bg-yellow-500/10 border-yellow-500/20";
+                }
+
+                const currentPercent =
+                  Number(course.totalScore) > 0
+                    ? ((currentSc / Number(course.totalScore)) * 100).toFixed(1)
+                    : "0.0";
 
                 return (
                   <div
@@ -351,12 +430,15 @@ export default function CgpaCalculator() {
                             Finals needed
                           </span>
                           <div className="flex items-center gap-2">
-                            {/* Static mockup for now */}
-                            <span className="text-[#22c55e] font-bold text-sm">
-                              63/75
+                            <span
+                              className={`font-bold text-sm ${finalsNeededRaw > 50 ? "text-red-500" : "text-white"}`}
+                            >
+                              {finalsNeeded}/50
                             </span>
-                            <span className="text-[10px] font-bold text-yellow-600 bg-yellow-900/30 px-2 py-0.5 rounded uppercase">
-                              Hard
+                            <span
+                              className={`text-[10px] font-bold px-2 py-0.5 rounded border uppercase ${diffColor}`}
+                            >
+                              {diffLabel}
                             </span>
                           </div>
                         </div>
@@ -386,9 +468,8 @@ export default function CgpaCalculator() {
                           Credits
                         </span>
                       </div>
-                      {/* Static Percentage Mockup */}
                       <div className="text-sm text-gray-400 font-medium">
-                        78.0%
+                        {currentPercent}%
                       </div>
                     </div>
                   </div>
