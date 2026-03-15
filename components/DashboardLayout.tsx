@@ -11,6 +11,7 @@ import {
   MessageSquare,
   Percent,
   X,
+  Zap,
 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
@@ -22,6 +23,7 @@ const sidebarLinks = [
   { name: "Marks & Grades", icon: GraduationCap, href: "/mark" },
   { name: "Timetable", icon: BarChart3, href: "/timetable" },
   { name: "Calendar", icon: CalendarDays, href: "/planner" },
+  { name: "Skip Pro", icon: Zap, href: "/skipcalculator" },
   { name: "GPA Calculator", icon: Percent, href: "/cgpacalculator" },
   { name: "Course Feedback", icon: MessageSquare, href: "/feedback" },
   { name: "Report Issue", icon: MessageSquare, href: "#" },

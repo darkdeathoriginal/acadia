@@ -421,12 +421,17 @@ export default function Timetable({ tm = false, section }) {
       </aside>
 
       <main className="flex-1 flex flex-col h-full overflow-y-auto w-full relative bg-[#09090b]">
-        <header className="justify-end items-center px-8 py-6 sticky top-0 bg-[#09090b]/80 backdrop-blur-md z-20 hidden md:flex">
-          <div className="flex items-center gap-6">
+        <header className="flex justify-between md:justify-end items-center px-5 md:px-8 py-4 md:py-6 sticky top-0 bg-[#060608]/80 backdrop-blur-md z-20 border-b border-white/5 md:border-none">
+          <div className="flex items-center gap-4 md:hidden">
+            <span className="text-[22px] font-bold text-white tracking-tight">
+              Acadia
+            </span>
+          </div>
+          <div className="flex items-center gap-4 md:gap-6">
             <button className="text-gray-400 hover:text-white transition-colors">
-              <Moon size={20} />
+              <Moon size={18} />
             </button>
-            <div className="w-8 h-8 rounded-md bg-[#252525] flex justify-center items-center font-bold text-sm cursor-pointer border border-white/10 text-gray-200 ml-2">
+            <div className="w-8 h-8 rounded-full bg-[#1a1a1a] flex justify-center items-center font-semibold text-sm cursor-pointer border border-[#333] text-gray-200">
               {user?.name ? user.name.charAt(0).toUpperCase() : "A"}
             </div>
           </div>
