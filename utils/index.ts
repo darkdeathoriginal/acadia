@@ -682,33 +682,12 @@ export async function getTimetable(
         prev = time;
       }
 
-      if (section && regno) {
-        try {
-          await Promise.race([
-            updateTimetable(data2, regno, section),
-            new Promise((resolve, reject) =>
-              setTimeout(() => {
-                console.log("tm Timed out");
-                resolve(0);
-              }, 1000),
-            ),
-          ]);
-        } catch (error) {}
-      }
       resolve(data);
     } catch (error) {
       console.error(error);
       reject(error);
     }
   });
-}
-export async function updateTimetable(timetable, regno, section) {
-  try {
-    const url = "http://135.119.198.251:8080/table";
-    const { data } = await axios.post(url, { timetable, regno, section });
-  } catch (error) {
-    console.error(error);
-  }
 }
 function replaceUnicodeEscapes(input) {
   return input.replace(/\\u[\dA-Fa-f]{4}/g, (match) => {

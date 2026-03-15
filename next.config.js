@@ -176,21 +176,4 @@ const withPWA = require("@ducanh2912/next-pwa").default({
 
 module.exports = {
   reactStrictMode: false,
-  async rewrites() {
-    return [
-      {
-        source: "/changelog",
-        destination:
-          "https://projectplannerai.com/changelog/j576hztftsqa75gaz99xwenktx6qqmsh",
-      },
-      {
-        source: "/ds/:path*",
-        destination: "http://135.119.198.251:8085/:path*",
-      },
-      {
-        source: "/api/count",
-        destination: "http://135.119.198.251:8080/count",
-      },
-    ];
-  },
 };
