@@ -11,9 +11,11 @@ import {
   GraduationCap,
   Home,
   LogOut,
+  Menu,
   MessageSquare,
   Moon,
   Percent,
+  X,
   Zap,
 } from "lucide-react";
 import dynamic from "next/dynamic";
@@ -236,6 +238,7 @@ export default function Timetable({ tm = false, section }) {
     1000 * 60 * 60,
   );
   const [activeTab, setActiveTab] = useState("Timetable");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const [dayOrder, setDayOrder] = useState<string | null>(null);
   const [loadingText, setLoadingText] = useState("Updating day order..");
@@ -254,6 +257,14 @@ export default function Timetable({ tm = false, section }) {
     { name: "Skip Pro", icon: Zap, href: "#" },
     { name: "Course Feedback", icon: MessageSquare, href: "/feedback" },
     { name: "Report Issue", icon: MessageSquare, href: "#" },
+  ];
+
+  const mobileNavItems = [
+    "Overview",
+    "Attendance",
+    "Timetable",
+    "Marks & Grades",
+    "Calendar",
   ];
 
   const fetchDayOrder = useCallback(async () => {
@@ -420,9 +431,93 @@ export default function Timetable({ tm = false, section }) {
         </div>
       </aside>
 
+      {/* Mobile Sidebar Overlay */}
+      {mobileMenuOpen && (
+        <div
+          className="md:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
+          onClick={() => setMobileMenuOpen(false)}
+        />
+      )}
+
+      {/* Mobile Sidebar Drawer */}
+      <aside
+        className={`md:hidden fixed top-0 left-0 h-full w-72 bg-[#0A0A0A] border-r border-[#1a1a24] z-50 flex flex-col justify-between transform transition-transform duration-300 ease-in-out ${
+          mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
+        <div className="overflow-y-auto" style={{ scrollbarWidth: "none" }}>
+          <div className="p-6 pb-2 flex items-center justify-between">
+            <div className="text-2xl font-bold tracking-tight">Acadia</div>
+            <button
+              onClick={() => setMobileMenuOpen(false)}
+              className="p-2 rounded-lg hover:bg-white/10 transition-colors text-gray-400"
+            >
+              <X size={20} />
+            </button>
+          </div>
+          <nav className="px-4 space-y-1 mt-4 pb-4">
+            {sidebarLinks.map((link) => {
+              const Icon = link.icon;
+              const isActive = activeTab === link.name;
+              return (
+                <Link
+                  key={link.name}
+                  href={link.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 text-sm font-medium ${
+                    isActive
+                      ? "bg-white text-black font-semibold"
+                      : "text-gray-400 hover:text-white hover:bg-white/5"
+                  }`}
+                >
+                  <Icon
+                    size={18}
+                    className={isActive ? "text-black" : "text-gray-400"}
+                  />
+                  {link.name}
+                </Link>
+              );
+            })}
+          </nav>
+        </div>
+
+        {/* Mobile Sidebar Footer */}
+        <div className="p-6 pb-8 border-t border-[#1a1a24] bg-[#0A0A0A]">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-green-600 to-yellow-600 flex justify-center items-center font-bold text-lg text-white shadow-lg shadow-green-900/20 relative ring-2 ring-[#0A0A0A]">
+                {user?.name ? user.name.charAt(0).toUpperCase() : "N"}
+                <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-[#0a0a0a] rounded-full"></div>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-sm font-semibold text-white leading-tight">
+                  {user?.name ? user.name.split(" ")[0] : "Student"}
+                </span>
+                <span className="text-xs text-gray-500 font-mono">
+                  {user?.roll || ""}
+                </span>
+              </div>
+            </div>
+            <button
+              onClick={() => delCookie()}
+              className="p-2 aspect-square rounded-full hover:bg-white/10 transition-colors text-gray-400 hover:text-red-400"
+              title="Logout"
+            >
+              <LogOut size={16} />
+            </button>
+          </div>
+        </div>
+      </aside>
+
       <main className="flex-1 flex flex-col h-full overflow-y-auto w-full relative bg-[#09090b]">
         <header className="flex justify-between md:justify-end items-center px-5 md:px-8 py-4 md:py-6 sticky top-0 bg-[#060608]/80 backdrop-blur-md z-20 border-b border-white/5 md:border-none">
           <div className="flex items-center gap-4 md:hidden">
+            <button
+              onClick={() => setMobileMenuOpen(true)}
+              className="p-1 -ml-1 text-white hover:bg-white/10 rounded-lg transition-colors"
+            >
+              <Menu size={24} />
+            </button>
             <span className="text-[22px] font-bold text-white tracking-tight">
               Acadia
             </span>
