@@ -60,8 +60,28 @@ export default function SkipCalculator() {
       "Dec",
     ];
 
-    for (const monthKey of Object.keys(plannerData)) {
-      if (plannerData[monthKey]?.error) continue;
+    let hasPassedLastWorkingDay = false;
+
+    // We need to iterate through the months chronologically, so we sort them first
+    const sortedMonthKeys = Object.keys(plannerData)
+      .filter((k) => !plannerData[k]?.error)
+      .sort((a, b) => {
+        const partsA = a.split(" '");
+        const partsB = b.split(" '");
+        if (partsA.length < 2 || partsB.length < 2) return 0;
+
+        const monthIdxA = monthNames.indexOf(partsA[0]);
+        const yearA = 2000 + parseInt(partsA[1]);
+        const monthIdxB = monthNames.indexOf(partsB[0]);
+        const yearB = 2000 + parseInt(partsB[1]);
+
+        if (yearA !== yearB) return yearA - yearB;
+        return monthIdxA - monthIdxB;
+      });
+
+    for (const monthKey of sortedMonthKeys) {
+      if (hasPassedLastWorkingDay) break;
+
       const monthData = plannerData[monthKey];
       if (!Array.isArray(monthData)) continue;
 
@@ -73,14 +93,29 @@ export default function SkipCalculator() {
       if (monthIdx === -1 || isNaN(year)) continue;
 
       for (const day of monthData) {
+        if (hasPassedLastWorkingDay) break;
+
         const dateNum = parseInt(day.date);
         if (isNaN(dateNum)) continue;
 
         const date = new Date(year, monthIdx, dateNum);
         if (date <= today) continue;
 
-        // Track last date in planner
-        if (date > lastDate) lastDate = date;
+        // Check for the "Last working Day" event
+        const desc = (day.sp || "").toLowerCase();
+        if (desc.includes("last working day")) {
+          hasPassedLastWorkingDay = true;
+          // Set lastDate to this exact explicit day
+          lastDate = date;
+
+          // We can break here immediately or evaluate exactly this day and then break
+          // Usually events aren't also teaching days, but just in case, let it evaluate below
+        }
+
+        // Track last date in planner (only if we haven't hit the end constraint)
+        if (!hasPassedLastWorkingDay && date > lastDate) {
+          lastDate = date;
+        }
 
         // Only count days with a numeric day order (1-5)
         const dayOrder = parseInt(day.dayo);
