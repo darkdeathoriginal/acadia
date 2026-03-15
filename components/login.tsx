@@ -144,7 +144,7 @@ export default function Login() {
 
       cookie.set("token", data.token, {
         expires: 30,
-        domain: ".example.com",
+        domain: ".acadia.works",
         path: "/",
       });
       router.push(redirect);
