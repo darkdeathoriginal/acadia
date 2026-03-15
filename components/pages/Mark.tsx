@@ -17,8 +17,8 @@ export default function Mark() {
   } = useFetchWithCache("/api/mark", "cache_mk");
 
   // Logic Calculations
-  let overallTotal = 0;
-  let maxPossibleTotal = 0;
+  let overallObtained = 0;
+  let overallMax = 0;
   let subjectsWithMarks = 0;
   let globalPercentage = 0;
 
@@ -36,26 +36,36 @@ export default function Mark() {
           m.mark !== "-"
         ) {
           localTotal += Number(m.mark);
-          const maxValMatch = m.total;
-          if (maxValMatch) {
-            localMax += Number(maxValMatch);
+          if (m.total) {
+            localMax += Number(m.total);
           }
           hasMarks = true;
         }
       });
 
-      let subjectTotal = Number(subject.total) || localTotal;
-      let subjectMax = localMax > 0 ? localMax : 100;
+      // course.total is a string like "25.50/50" from the API
+      let subjObtained = localTotal;
+      let subjMax = localMax;
+      if (
+        subject.total &&
+        typeof subject.total === "string" &&
+        subject.total.includes("/")
+      ) {
+        const parts = subject.total.split("/");
+        subjObtained = parseFloat(parts[0]) || localTotal;
+        subjMax = parseFloat(parts[1]) || localMax;
+      }
+      if (subjMax === 0) subjMax = 100;
 
       if (hasMarks || subject.total) {
         subjectsWithMarks++;
-        overallTotal += subjectTotal;
-        maxPossibleTotal += subjectMax;
+        overallObtained += subjObtained;
+        overallMax += subjMax;
       }
     });
 
-    if (maxPossibleTotal > 0) {
-      globalPercentage = Math.round((overallTotal / maxPossibleTotal) * 100);
+    if (overallMax > 0) {
+      globalPercentage = Math.round((overallObtained / overallMax) * 100);
     }
   }
 
@@ -95,7 +105,8 @@ export default function Mark() {
             </div>
             <div className="rounded-xl border border-white/5 bg-[#14141a] p-6 text-center shadow-md">
               <h3 className="text-4xl font-bold text-white mb-2">
-                {(overallTotal / 10).toFixed(2)}/10
+                {overallObtained.toFixed(1)}
+                <span className="text-gray-500 text-2xl">/{overallMax}</span>
               </h3>
               <p className="text-gray-400 text-sm font-medium">Total Marks</p>
             </div>
@@ -141,11 +152,18 @@ export default function Mark() {
                 }
               });
 
-              if (Number(course.total) > 0) {
-                subjObtained = Number(course.total);
+              // course.total is a string like "25.50/50" from the API
+              if (
+                course.total &&
+                typeof course.total === "string" &&
+                course.total.includes("/")
+              ) {
+                const parts = course.total.split("/");
+                subjObtained = parseFloat(parts[0]) || subjObtained;
+                subjMax = parseFloat(parts[1]) || subjMax;
               }
 
-              if (subjMax === 0) subjMax = 10; // Default assumption for the UI
+              if (subjMax === 0) subjMax = 100;
 
               const subjPercent =
                 subjMax > 0 ? Math.round((subjObtained / subjMax) * 100) : 0;
