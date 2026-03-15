@@ -115,6 +115,8 @@ export function delCookie(redirection = true) {
     domain: ".acadia.works",
     path: "/",
   });
+  cookie.remove("token", { path: "/" });
+  cookie.remove("token");
   cookie.remove("batch");
   if ("caches" in window) {
     caches.keys().then((names) => {
@@ -130,7 +132,9 @@ export function delCookie(redirection = true) {
   sessionStorage.clear();
 
   const nextPath = redirection ? window.location.pathname : "/attendance";
-  window.location.href = "/login?redirect=" + nextPath;
+  if (window.location.pathname !== "/login") {
+    window.location.href = "/login?redirect=" + nextPath;
+  }
 }
 
 export function parseCookieString(cookie) {

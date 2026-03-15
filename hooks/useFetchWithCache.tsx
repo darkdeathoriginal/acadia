@@ -41,9 +41,14 @@ export default function useFetchWithCache(url, cacheKey, timeOut = 10000) {
         setLoading(false);
       });
   }, [url, cachedData, cacheKey]);
-  if (error == "Invalid cookie") {
-    delCookie();
-  }
+  useEffect(() => {
+    if (
+      error === "Invalid cookie" ||
+      (error && error.error === "Invalid cookie")
+    ) {
+      delCookie();
+    }
+  }, [error]);
 
   return { data, loading, error };
 }
