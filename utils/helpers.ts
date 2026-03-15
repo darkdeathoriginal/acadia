@@ -80,7 +80,7 @@ export const fetchWithCache = (
   url,
   options = {},
   key,
-  { setState = (any: any) => {}, time = 60 * 60 * 1000 }
+  { setState = (any: any) => {}, time = 60 * 60 * 1000 },
 ) => {
   return new Promise(async (resolve, reject) => {
     const cacheKey = key || `cache_${url}`;
@@ -111,7 +111,10 @@ export const fetchWithCache = (
 import cookie from "js-cookie";
 export function delCookie(redirection = true) {
   localStorage.clear();
-  cookie.remove("token");
+  cookie.remove("token", {
+    domain: ".acadia.works",
+    path: "/",
+  });
   cookie.remove("batch");
   if ("caches" in window) {
     caches.keys().then((names) => {
@@ -144,7 +147,7 @@ export function fillFeedback(
   cookie,
   model,
   comment = "Good Teacher",
-  remark
+  remark,
 ) {
   const data: Record<string, any> = {};
   const parsedCookie = parseCookieString(cookie);
@@ -172,7 +175,7 @@ export function fillFeedback(
   data.Enter_Your_Feedback_Here_Theory = [];
 
   for (let i of record.Enter_Your_Feedback_Here_Theory.SUBFORM_RECORDS.slice(
-    1
+    1,
   )) {
     const subData: any = {};
 
@@ -201,7 +204,7 @@ export function fillFeedback(
   }
   data.Enter_Your_Feedback_Here_Practical = [];
   for (let i of record.Enter_Your_Feedback_Here_Practical.SUBFORM_RECORDS.slice(
-    1
+    1,
   )) {
     const subData: any = {};
     for (let key of Object.keys(i)) {
