@@ -231,7 +231,7 @@ export default function SkipCalculator() {
         ) : (
           <>
             {/* Header */}
-            <div className="mb-6 border border-white/5 rounded-2xl bg-[#0d0d12] overflow-hidden shadow-lg animate-fade-in-up">
+            <div className="mb-6 border border-white/5 rounded-2xl bg-[#0d0d12] overflow-hidden shadow-lg">
               <div className="flex justify-between items-center p-5 border-b border-white/5">
                 <div className="flex items-center gap-2">
                   <Zap className="text-gray-300 w-5 h-5" />
@@ -271,7 +271,7 @@ export default function SkipCalculator() {
 
             {/* Course Cards */}
             <div
-              className="flex flex-col gap-4 mb-6 animate-fade-in-up delay-100"
+              className="flex flex-col gap-4 mb-6"
               style={{ animationDelay: "100ms" }}
             >
               {skipData.map((course, i) => {
@@ -328,7 +328,7 @@ export default function SkipCalculator() {
 
             {/* Legend */}
             <div
-              className="border border-white/5 rounded-2xl bg-[#0d0d12] p-5 flex flex-wrap justify-center gap-6 md:gap-10 shadow-lg animate-fade-in-up delay-200"
+              className="border border-white/5 rounded-2xl bg-[#0d0d12] p-5 flex flex-wrap justify-center gap-6 md:gap-10 shadow-lg"
               style={{ animationDelay: "200ms" }}
             >
               <div className="flex items-center gap-2">

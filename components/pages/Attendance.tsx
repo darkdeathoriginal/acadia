@@ -56,7 +56,7 @@ export default function Attendance() {
       {/* Attendance Content */}
       <div className="px-6 md:px-10 pb-20 pt-2 lg:pt-0 max-w-5xl w-full mx-auto md:mx-0">
         {/* Attendance Overview Section */}
-        <div className="mb-6 border border-white/5 rounded-2xl bg-[#0d0d12] overflow-hidden shadow-lg animate-fade-in-up">
+        <div className="mb-6 border border-white/5 rounded-2xl bg-[#0d0d12] overflow-hidden shadow-lg">
           {/* Header */}
           <div className="flex justify-between items-center p-5 border-b border-white/5">
             <div className="flex items-center gap-2">
@@ -100,7 +100,7 @@ export default function Attendance() {
 
         {/* Attendance Prediction Section */}
         <div
-          className="mb-6 border border-white/5 rounded-2xl bg-[#0d0d12] p-5 flex justify-between items-center shadow-lg animate-fade-in-up delay-100"
+          className="mb-6 border border-white/5 rounded-2xl bg-[#0d0d12] p-5 flex justify-between items-center shadow-lg"
           style={{ animationDelay: "100ms" }}
         >
           <div className="flex items-center gap-2">
@@ -117,7 +117,7 @@ export default function Attendance() {
 
         {/* Courses List */}
         <div
-          className="flex flex-col gap-4 mb-6 animate-fade-in-up delay-200"
+          className="flex flex-col gap-4 mb-6"
           style={{ minHeight: "150px", animationDelay: "200ms" }}
         >
           {attendanceLoading && !attendanceData && (
@@ -199,7 +199,7 @@ export default function Attendance() {
 
         {/* Skip Calculator Section */}
         <div
-          className="mb-10 border border-white/5 rounded-2xl bg-[#0d0d12] p-6 flex flex-col md:flex-row justify-between items-start md:items-center shadow-lg animate-fade-in-up delay-300"
+          className="mb-10 border border-white/5 rounded-2xl bg-[#0d0d12] p-6 flex flex-col md:flex-row justify-between items-start md:items-center shadow-lg"
           style={{ animationDelay: "300ms" }}
         >
           <div>

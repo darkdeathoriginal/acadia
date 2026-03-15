@@ -74,7 +74,7 @@ export default function Mark() {
       {/* Marks Content */}
       <div className="px-6 md:px-10 pb-20 pt-2 lg:pt-0 max-w-5xl w-full mx-auto md:mx-0">
         {/* Academic Performance Overview Section */}
-        <div className="mb-6 border border-white/5 rounded-2xl bg-[#0d0d12] overflow-hidden shadow-lg animate-fade-in-up">
+        <div className="mb-6 border border-white/5 rounded-2xl bg-[#0d0d12] overflow-hidden shadow-lg">
           {/* Header */}
           <div className="flex justify-between items-center p-6 border-b border-white/5">
             <div className="flex items-center gap-2">
@@ -114,10 +114,7 @@ export default function Mark() {
         </div>
 
         {/* Subjects List */}
-        <div
-          className="flex flex-col gap-6 animate-fade-in-up delay-100"
-          style={{ minHeight: "150px", animationDelay: "100ms" }}
-        >
+        <div className="flex flex-col gap-6" style={{ minHeight: "150px" }}>
           {marksLoading && !marksData && (
             <div className="flex justify-center items-center h-32">
               <div className="w-8 h-8 rounded-full border-2 border-white/10 border-t-white/60 animate-spin"></div>

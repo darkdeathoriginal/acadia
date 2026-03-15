@@ -123,7 +123,7 @@ export default function Planner() {
         ) : (
           <>
             {/* Header Card */}
-            <div className="mb-6 border border-white/5 rounded-2xl bg-[#0d0d12] p-5 flex flex-col md:flex-row justify-between items-center shadow-lg animate-fade-in-up">
+            <div className="mb-6 border border-white/5 rounded-2xl bg-[#0d0d12] p-5 flex flex-col md:flex-row justify-between items-center shadow-lg">
               <div className="flex items-center gap-3 mb-4 md:mb-0">
                 <CalendarIcon className="text-white w-5 h-5" />
                 <h2 className="text-xl font-bold text-white tracking-tight">
@@ -155,7 +155,7 @@ export default function Planner() {
             </div>
 
             {/* Main Calendar Card */}
-            <div className="border border-white/5 rounded-2xl bg-[#0d0d12] overflow-hidden shadow-lg animate-fade-in-up delay-100">
+            <div className="border border-white/5 rounded-2xl bg-[#0d0d12] overflow-hidden shadow-lg">
               {/* Month navigation */}
               <div className="p-6 flex items-center justify-between">
                 <div className="flex items-center gap-6">

@@ -44,7 +44,7 @@ export default function Home() {
         </nav>
 
         {/* Hero Section */}
-        <div className="text-center mb-32 flex flex-col items-center animate-fade-in-up">
+        <div className="text-center mb-32 flex flex-col items-center">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 transition-colors cursor-pointer mb-8">
             <div className="w-2 h-2 rounded-full bg-blue-500"></div>
             <span className="text-sm font-medium text-gray-300">
@@ -83,7 +83,7 @@ export default function Home() {
         {/* Features Section */}
         <div
           id="learn-more"
-          className="grid grid-cols-1 lg:grid-cols-2 gap-6 pb-24 animate-fade-in-up delay-200"
+          className="grid grid-cols-1 lg:grid-cols-2 gap-6 pb-24"
           style={{ animationDelay: "200ms" }}
         >
           <div className="space-y-6 flex flex-col">
@@ -207,7 +207,7 @@ export default function Home() {
 
         {/* Footer */}
         <footer
-          className="mt-12 border-t border-white/10 pt-8 pb-8 flex flex-col md:flex-row justify-between items-center text-gray-500 text-sm animate-fade-in"
+          className="mt-12 border-t border-white/10 pt-8 pb-8 flex flex-col md:flex-row justify-between items-center text-gray-500 text-sm"
           style={{ animationDelay: "400ms" }}
         >
           <p>© {new Date().getFullYear()} Acadia. Student Project.</p>

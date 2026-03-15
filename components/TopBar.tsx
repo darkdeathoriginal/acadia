@@ -64,7 +64,7 @@ export default function TopBar({
           {/* Dropdown Menu */}
           {showDropdown && (
             <div
-              className="absolute right-0 mt-3 w-64 rounded-2xl bg-[#131320]/95 backdrop-blur-xl border border-white/[0.08] shadow-2xl shadow-black/50 overflow-hidden animate-fade-in"
+              className="absolute right-0 mt-3 w-64 rounded-2xl bg-[#131320]/95 backdrop-blur-xl border border-white/[0.08] shadow-2xl shadow-black/50 overflow-hidden"
               style={{ animation: "fadeIn 0.15s ease-out" }}
             >
               {/* User Info */}

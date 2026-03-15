@@ -183,7 +183,7 @@ export default function Login() {
         className="relative z-10 flex items-center justify-center px-4 pt-8 pb-16"
         style={{ minHeight: "calc(100vh - 70px)" }}
       >
-        <div className="w-full max-w-md animate-fade-in-up">
+        <div className="w-full max-w-md">
           {/* Card */}
           <div className="bg-[#0d1120]/80 backdrop-blur-xl border border-white/[0.08] rounded-2xl p-8 md:p-10 shadow-2xl shadow-black/40">
             {logoutRequired ? (
@@ -197,7 +197,7 @@ export default function Login() {
                     You are logged in on too many devices
                   </p>
                 </div>
-                <div className="space-y-5 animate-fade-in">
+                <div className="space-y-5">
                   <div className="p-4 bg-yellow-500/10 rounded-xl border border-yellow-500/20">
                     <div className="text-yellow-400 text-sm font-semibold mb-1">
                       ⚠ Session Limit Reached
@@ -249,7 +249,7 @@ export default function Login() {
                     You can now sign in with your new password
                   </p>
                 </div>
-                <div className="space-y-5 animate-fade-in">
+                <div className="space-y-5">
                   <div className="p-4 bg-green-500/10 rounded-xl border border-green-500/20">
                     <div className="text-green-400 text-sm font-semibold mb-1">
                       ✅ Password Reset Successful
@@ -420,7 +420,7 @@ function ResetPasswordForm({
   };
 
   return (
-    <div className="space-y-4 animate-fade-in">
+    <div className="space-y-4">
       <form
         className="flex flex-col space-y-4"
         onSubmit={handleSubmit(onSubmit)}

@@ -176,7 +176,7 @@ export default function User() {
       {/* User Content */}
       <div className="px-6 md:px-10 pb-20 pt-6 max-w-6xl w-full">
         {/* Welcome Header */}
-        <div className="mb-10 animate-fade-in-up">
+        <div className="mb-10">
           <h1 className="text-3xl md:text-[34px] font-bold mb-2 tracking-tight text-white">
             Welcome back, {data?.name ? data.name.split(" ")[0] : "Student"}!
           </h1>
@@ -187,7 +187,7 @@ export default function User() {
 
         {/* Stats Grid */}
         <div
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-12 animate-fade-in-up delay-100"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-12"
           style={{ animationDelay: "100ms" }}
         >
           {/* Attendance Card */}
@@ -256,10 +256,7 @@ export default function User() {
         </div>
 
         {/* Today's Schedule Section */}
-        <div
-          className="animate-fade-in-up delay-200"
-          style={{ animationDelay: "200ms" }}
-        >
+        <div style={{ animationDelay: "200ms" }}>
           <div className="flex justify-between items-center mb-6">
             <div className="flex items-center gap-2">
               <Clock className="text-gray-400 w-5 h-5" />

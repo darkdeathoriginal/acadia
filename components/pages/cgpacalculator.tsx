@@ -161,7 +161,7 @@ export default function CgpaCalculator() {
       {/* Content */}
       <div className="px-6 md:px-10 pb-20 pt-2 lg:pt-0 max-w-5xl w-full mx-auto md:mx-0">
         {/* Header Card / Stats */}
-        <div className="mb-6 border border-white/5 rounded-2xl bg-[#0d0d12] p-6 lg:p-8 flex flex-col shadow-lg animate-fade-in-up">
+        <div className="mb-6 border border-white/5 rounded-2xl bg-[#0d0d12] p-6 lg:p-8 flex flex-col shadow-lg">
           <div className="flex flex-col gap-2 mb-6">
             <div className="flex items-center gap-3">
               <Percent className="text-white w-6 h-6" />
@@ -201,7 +201,7 @@ export default function CgpaCalculator() {
         </div>
 
         {/* Courses List Section */}
-        <div className="mb-10 w-full animate-fade-in-up delay-100">
+        <div className="mb-10 w-full">
           <div className="flex justify-between items-center mb-6">
             <h3 className="text-2xl font-bold text-white tracking-tight">
               Courses

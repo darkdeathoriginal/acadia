@@ -7,7 +7,7 @@
   --background-start-rgb: 214, 219, 220;
   --background-end-rgb: 255, 255, 255;
 }
-::-webkit-scrollbar{
+::-webkit-scrollbar {
   display: none;
 }
 
@@ -18,10 +18,10 @@
     --background-end-rgb: 0, 0, 0;
   }
 }
-.snap-container{
+.snap-container {
   scroll-snap-type: x mandatory;
 }
-.snap-element{
+.snap-element {
   scroll-snap-align: start;
   scroll-snap-stop: always;
 }
@@ -95,20 +95,11 @@ table {
 }
 .menu-list {
   visibility: hidden;
-  background-color: black;  
+  background-color: black;
 }
 .show {
   visibility: visible;
   transition: all 3s ease;
-}
-.reveal{
-  transform: translateX(10rem);
-  animation: reveal 0.3s ease forwards;
-}
-@keyframes reveal {
-  100% {
-    transform: translateX(0);
-  }
 }
 
 .growAn {
