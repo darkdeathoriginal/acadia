@@ -203,7 +203,7 @@ export default function Feedback() {
                   ))}
                 </select>
                 <p className="text-xs text-gray-500 mt-1">
-                  Leave as Random if you don't mind the remarks.
+                  Leave as Random if you don&apos;t mind the remarks.
                 </p>
               </div>
 
