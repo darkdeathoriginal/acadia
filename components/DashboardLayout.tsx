@@ -1,13 +1,11 @@
 "use client";
 
-import { delCookie } from "@/utils/helpers";
 import {
   BarChart3,
   CalendarCheck,
   CalendarDays,
   GraduationCap,
   Home,
-  LogOut,
   MessageSquare,
   Percent,
   X,
@@ -80,23 +78,6 @@ export default function DashboardLayout({
             })}
           </nav>
         </div>
-
-        {/* Sidebar Footer */}
-        <div className="p-6 pb-8 border-t border-[#1a1a24] bg-[#0A0A0A]">
-          <div className="flex items-center justify-between">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-green-600 to-yellow-600 flex justify-center items-center font-bold text-lg text-white shadow-lg shadow-green-900/20 relative cursor-pointer ring-2 ring-[#0A0A0A]">
-              {user?.name ? user.name.charAt(0).toUpperCase() : "N"}
-              <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-[#0a0a0a] rounded-full"></div>
-            </div>
-            <button
-              onClick={() => delCookie()}
-              className="p-2 aspect-square rounded-full hover:bg-white/10 transition-colors text-gray-400 hover:text-red-400"
-              title="Logout"
-            >
-              <LogOut size={16} />
-            </button>
-          </div>
-        </div>
       </aside>
 
       {/* Mobile Sidebar Overlay */}
@@ -147,33 +128,6 @@ export default function DashboardLayout({
               );
             })}
           </nav>
-        </div>
-
-        {/* Mobile Sidebar Footer */}
-        <div className="p-6 pb-8 border-t border-[#1a1a24] bg-[#0A0A0A]">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-green-600 to-yellow-600 flex justify-center items-center font-bold text-lg text-white shadow-lg shadow-green-900/20 relative ring-2 ring-[#0A0A0A]">
-                {user?.name ? user.name.charAt(0).toUpperCase() : "N"}
-                <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-[#0a0a0a] rounded-full"></div>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-sm font-semibold text-white leading-tight">
-                  {user?.name ? user.name.split(" ")[0] : "Student"}
-                </span>
-                <span className="text-xs text-gray-500 font-mono">
-                  {user?.roll || ""}
-                </span>
-              </div>
-            </div>
-            <button
-              onClick={() => delCookie()}
-              className="p-2 aspect-square rounded-full hover:bg-white/10 transition-colors text-gray-400 hover:text-red-400"
-              title="Logout"
-            >
-              <LogOut size={16} />
-            </button>
-          </div>
         </div>
       </aside>
 
