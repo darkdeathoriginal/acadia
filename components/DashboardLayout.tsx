@@ -24,7 +24,6 @@ const sidebarLinks = [
   { name: "Skip Pro", icon: Zap, href: "/skipcalculator" },
   { name: "GPA Calculator", icon: Percent, href: "/cgpacalculator" },
   { name: "Course Feedback", icon: MessageSquare, href: "/feedback" },
-  { name: "Report Issue", icon: MessageSquare, href: "#" },
 ];
 
 const mobileNavItems = [

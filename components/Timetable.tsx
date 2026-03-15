@@ -1,25 +1,10 @@
 "use client";
 
+import DashboardLayout from "@/components/DashboardLayout";
 import useFetchWithCache from "@/hooks/useFetchWithCache";
 import { delCookie, fetchWithCache } from "@/utils/helpers";
 import cookie from "js-cookie";
-import {
-  Activity,
-  BarChart3,
-  CalendarCheck,
-  CalendarDays,
-  GraduationCap,
-  Home,
-  LogOut,
-  Menu,
-  MessageSquare,
-  Moon,
-  Percent,
-  X,
-  Zap,
-} from "lucide-react";
 import dynamic from "next/dynamic";
-import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 const DEFAULT_TIME_SLOTS = [
@@ -237,35 +222,11 @@ export default function Timetable({ tm = false, section }) {
     "cache_us",
     1000 * 60 * 60,
   );
-  const [activeTab, setActiveTab] = useState("Timetable");
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
   const [dayOrder, setDayOrder] = useState<string | null>(null);
   const [loadingText, setLoadingText] = useState("Updating day order..");
   const [isLoading, setIsLoading] = useState(false);
   const [data, setData] = useState<any>(tm || null);
   const [selectedDay, setSelectedDay] = useState("1");
-
-  const sidebarLinks = [
-    { name: "Overview", icon: Home, href: "/user" },
-    { name: "Attendance", icon: CalendarCheck, href: "/attendance" },
-    { name: "Marks & Grades", icon: GraduationCap, href: "/mark" },
-    { name: "Timetable", icon: BarChart3, href: "/timetable" },
-    { name: "Courses", icon: Activity, href: "#" },
-    { name: "Calendar", icon: CalendarDays, href: "/planner" },
-    { name: "GPA Calculator", icon: Percent, href: "/cgpacalculator" },
-    { name: "Skip Pro", icon: Zap, href: "#" },
-    { name: "Course Feedback", icon: MessageSquare, href: "/feedback" },
-    { name: "Report Issue", icon: MessageSquare, href: "#" },
-  ];
-
-  const mobileNavItems = [
-    "Overview",
-    "Attendance",
-    "Timetable",
-    "Marks & Grades",
-    "Calendar",
-  ];
 
   const fetchDayOrder = useCallback(async () => {
     try {
@@ -381,325 +342,141 @@ export default function Timetable({ tm = false, section }) {
   }, [formattedData, selectedDay]);
 
   return (
-    <div className="flex h-screen bg-[#060608] text-white font-sans overflow-hidden">
-      <aside className="w-64 border-r border-[#1a1a24] bg-[#0A0A0A] hidden md:flex md:flex-col justify-between h-full flex-shrink-0">
-        <div className="overflow-y-auto" style={{ scrollbarWidth: "none" }}>
-          <div className="p-6 pb-2">
-            <div className="text-2xl font-bold tracking-tight">Acadia</div>
-          </div>
-          <nav className="px-4 space-y-1 mt-4 pb-4">
-            {sidebarLinks.map((link) => {
-              const Icon = link.icon;
-              const isActive = activeTab === link.name;
+    <DashboardLayout user={user} activeTab="Timetable">
+      <div className="px-6 md:px-10 pb-20 pt-2 lg:pt-0 max-w-4xl w-full mx-auto md:mx-0">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+          <h2 className="text-xl font-bold text-white tracking-tight">
+            Day Order {selectedDay}
+          </h2>
 
+          <div className="flex flex-wrap items-center gap-2">
+            {dayKeys.map((dayKey) => {
+              const isActive = dayKey === selectedDay;
               return (
-                <Link
-                  key={link.name}
-                  href={link.href}
-                  onClick={() => setActiveTab(link.name)}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 text-sm font-medium ${
+                <button
+                  key={dayKey}
+                  onClick={() => setSelectedDay(dayKey)}
+                  className={`nav-btn px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
                     isActive
-                      ? "bg-white text-black font-semibold"
-                      : "text-gray-400 hover:text-white hover:bg-white/5"
+                      ? "bg-white text-black"
+                      : "bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white"
                   }`}
                 >
-                  <Icon
-                    size={18}
-                    className={isActive ? "text-black" : "text-gray-400"}
-                  />
-                  {link.name}
-                </Link>
+                  Day {dayKey}
+                </button>
               );
             })}
-          </nav>
-        </div>
 
-        <div className="p-6 pb-8 border-t border-[#1a1a24] bg-[#0A0A0A]">
-          <div className="flex items-center justify-between">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-green-600 to-yellow-600 flex justify-center items-center font-bold text-lg text-white shadow-lg shadow-green-900/20 relative cursor-pointer ring-2 ring-[#0A0A0A]">
-              {user?.name ? user.name.charAt(0).toUpperCase() : "N"}
-              <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-[#0a0a0a] rounded-full" />
-            </div>
-            <button
-              onClick={() => delCookie()}
-              className="p-2 aspect-square rounded-full hover:bg-white/10 transition-colors text-gray-400 hover:text-red-400"
-              title="Logout"
-            >
-              <LogOut size={16} />
-            </button>
-          </div>
-        </div>
-      </aside>
-
-      {/* Mobile Sidebar Overlay */}
-      {mobileMenuOpen && (
-        <div
-          className="md:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
-          onClick={() => setMobileMenuOpen(false)}
-        />
-      )}
-
-      {/* Mobile Sidebar Drawer */}
-      <aside
-        className={`md:hidden fixed top-0 left-0 h-full w-72 bg-[#0A0A0A] border-r border-[#1a1a24] z-50 flex flex-col justify-between transform transition-transform duration-300 ease-in-out ${
-          mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
-      >
-        <div className="overflow-y-auto" style={{ scrollbarWidth: "none" }}>
-          <div className="p-6 pb-2 flex items-center justify-between">
-            <div className="text-2xl font-bold tracking-tight">Acadia</div>
-            <button
-              onClick={() => setMobileMenuOpen(false)}
-              className="p-2 rounded-lg hover:bg-white/10 transition-colors text-gray-400"
-            >
-              <X size={20} />
-            </button>
-          </div>
-          <nav className="px-4 space-y-1 mt-4 pb-4">
-            {sidebarLinks.map((link) => {
-              const Icon = link.icon;
-              const isActive = activeTab === link.name;
-              return (
-                <Link
-                  key={link.name}
-                  href={link.href}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 text-sm font-medium ${
-                    isActive
-                      ? "bg-white text-black font-semibold"
-                      : "text-gray-400 hover:text-white hover:bg-white/5"
-                  }`}
-                >
-                  <Icon
-                    size={18}
-                    className={isActive ? "text-black" : "text-gray-400"}
-                  />
-                  {link.name}
-                </Link>
-              );
-            })}
-          </nav>
-        </div>
-
-        {/* Mobile Sidebar Footer */}
-        <div className="p-6 pb-8 border-t border-[#1a1a24] bg-[#0A0A0A]">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-green-600 to-yellow-600 flex justify-center items-center font-bold text-lg text-white shadow-lg shadow-green-900/20 relative ring-2 ring-[#0A0A0A]">
-                {user?.name ? user.name.charAt(0).toUpperCase() : "N"}
-                <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-[#0a0a0a] rounded-full"></div>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-sm font-semibold text-white leading-tight">
-                  {user?.name ? user.name.split(" ")[0] : "Student"}
-                </span>
-                <span className="text-xs text-gray-500 font-mono">
-                  {user?.roll || ""}
-                </span>
-              </div>
-            </div>
-            <button
-              onClick={() => delCookie()}
-              className="p-2 aspect-square rounded-full hover:bg-white/10 transition-colors text-gray-400 hover:text-red-400"
-              title="Logout"
-            >
-              <LogOut size={16} />
-            </button>
-          </div>
-        </div>
-      </aside>
-
-      <main className="flex-1 flex flex-col h-full overflow-y-auto w-full relative bg-[#09090b]">
-        <header className="flex justify-between md:justify-end items-center px-5 md:px-8 py-4 md:py-6 sticky top-0 bg-[#060608]/80 backdrop-blur-md z-20 border-b border-white/5 md:border-none">
-          <div className="flex items-center gap-4 md:hidden">
-            <button
-              onClick={() => setMobileMenuOpen(true)}
-              className="p-1 -ml-1 text-white hover:bg-white/10 rounded-lg transition-colors"
-            >
-              <Menu size={24} />
-            </button>
-            <span className="text-[22px] font-bold text-white tracking-tight">
-              Acadia
-            </span>
-          </div>
-          <div className="flex items-center gap-4 md:gap-6">
-            <button className="text-gray-400 hover:text-white transition-colors">
-              <Moon size={18} />
-            </button>
-            <div className="w-8 h-8 rounded-full bg-[#1a1a1a] flex justify-center items-center font-semibold text-sm cursor-pointer border border-[#333] text-gray-200">
-              {user?.name ? user.name.charAt(0).toUpperCase() : "A"}
-            </div>
-          </div>
-        </header>
-
-        <div className="px-6 md:px-10 pb-20 pt-2 lg:pt-0 max-w-4xl w-full mx-auto md:mx-0">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-            <h2 className="text-xl font-bold text-white tracking-tight">
-              Day Order {selectedDay}
-            </h2>
-
-            <div className="flex flex-wrap items-center gap-2">
-              {dayKeys.map((dayKey) => {
-                const isActive = dayKey === selectedDay;
-                return (
-                  <button
-                    key={dayKey}
-                    onClick={() => setSelectedDay(dayKey)}
-                    className={`nav-btn px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
-                      isActive
-                        ? "bg-white text-black"
-                        : "bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white"
-                    }`}
-                  >
-                    Day {dayKey}
-                  </button>
-                );
-              })}
-
-              {data && (
-                <div className="ml-2 h-7 px-3 rounded-md bg-white/5 text-gray-300 hover:text-white hover:bg-white/10 transition-colors flex items-center text-xs font-semibold">
-                  <DownloadTimetable timetable={data} section={section} />
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-3">
-            {isLoading && !currentSlots.length && (
-              <div className="flex justify-center items-center h-28">
-                <div className="w-8 h-8 rounded-full border-2 border-white/10 border-t-white/60 animate-spin" />
+            {data && (
+              <div className="ml-2 h-7 px-3 rounded-md bg-white/5 text-gray-300 hover:text-white hover:bg-white/10 transition-colors flex items-center text-xs font-semibold">
+                <DownloadTimetable timetable={data} section={section} />
               </div>
             )}
+          </div>
+        </div>
 
-            {!isLoading && currentSlots.length === 0 && (
-              <div className="text-center py-10 text-gray-500 border border-white/5 rounded-2xl bg-[#0d0d12]">
-                No timetable data available
-              </div>
-            )}
+        <div className="flex flex-col gap-3">
+          {isLoading && !currentSlots.length && (
+            <div className="flex justify-center items-center h-28">
+              <div className="w-8 h-8 rounded-full border-2 border-white/10 border-t-white/60 animate-spin" />
+            </div>
+          )}
 
-            {currentSlots.map((timeSlot) => {
-              const classData = formattedData[selectedDay][timeSlot];
-              const title = classData?.title || "No Class";
-              const code = classData?.code || "";
-              const room = classData?.room || "";
-              const type = classData?.type || "";
-              const emptySlot = isSlotEmpty(classData);
-              const faculty =
-                classData?.faculty ||
-                (typeof classData?.name === "string" &&
-                  classData.name.includes("("))
-                  ? classData.name
-                  : "";
+          {!isLoading && currentSlots.length === 0 && (
+            <div className="text-center py-10 text-gray-500 border border-white/5 rounded-2xl bg-[#0d0d12]">
+              No timetable data available
+            </div>
+          )}
 
-              if (emptySlot) {
-                return (
-                  <div
-                    key={`${selectedDay}-${timeSlot}`}
-                    className="flex justify-between items-center p-4 rounded-xl bg-[#121214] border border-white/5 shadow-sm"
-                  >
-                    <span className="text-gray-400 text-sm font-medium">
-                      {formatRangeForUi(timeSlot)}
-                    </span>
-                    <span className="text-gray-400 text-sm font-medium">
-                      No Class
-                    </span>
-                  </div>
-                );
-              }
+          {currentSlots.map((timeSlot) => {
+            const classData = formattedData[selectedDay][timeSlot];
+            const title = classData?.title || "No Class";
+            const code = classData?.code || "";
+            const room = classData?.room || "";
+            const type = classData?.type || "";
+            const emptySlot = isSlotEmpty(classData);
+            const faculty =
+              classData?.faculty ||
+              (typeof classData?.name === "string" &&
+                classData.name.includes("("))
+                ? classData.name
+                : "";
 
-              const isLab =
-                String(type).toLowerCase().includes("lab") ||
-                String(type).toLowerCase().includes("practical") ||
-                String(type).toLowerCase().includes("p");
-
+            if (emptySlot) {
               return (
                 <div
                   key={`${selectedDay}-${timeSlot}`}
-                  className={`flex flex-col sm:flex-row sm:justify-between p-5 rounded-xl border border-white/5 shadow-md gap-4 ${
-                    isLab ? "bg-[#2A1612]" : "bg-[#181C25]"
-                  }`}
+                  className="flex justify-between items-center p-4 rounded-xl bg-[#121214] border border-white/5 shadow-sm"
                 >
-                  <div className="flex flex-col justify-between">
-                    <h3 className="text-base font-bold text-white mb-2">
-                      {title}
-                    </h3>
-                    <div className="text-sm text-gray-400 font-medium mb-2 flex items-center gap-2">
-                      <span>
-                        {code}
-                        {faculty ? ` • ${faculty}` : ""}
-                      </span>
-                    </div>
-                    <div className="text-sm text-gray-400 flex items-center gap-1.5">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                        className="w-4 h-4 text-gray-500"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M9.69 18.933l.003.001C9.89 19.02 10 19 10 19s.11.02.308-.066l.002-.001.006-.003.018-.008a5.741 5.741 0 00.281-.14c.186-.096.446-.24.757-.433.62-.384 1.445-.966 2.274-1.765C15.302 14.988 17 12.493 17 9A7 7 0 103 9c0 3.492 1.698 5.988 3.355 7.584a13.731 13.731 0 002.273 1.765 11.842 11.842 0 00.976.544l.062.029.018.008.006.003zM10 11.25a2.25 2.25 0 100-4.5 2.25 2.25 0 000 4.5z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                      {room || "NA"}
-                    </div>
-                  </div>
-
-                  <div className="flex flex-row sm:flex-col sm:items-end justify-between items-center sm:gap-0 mt-2 sm:mt-0">
-                    <span className="text-gray-300 text-sm font-semibold sm:mb-4">
-                      {formatRangeForUi(timeSlot)}
-                    </span>
-                    <span
-                      className={`px-3 py-1 rounded-md text-xs font-semibold ${
-                        isLab
-                          ? "bg-orange-500/20 text-orange-400"
-                          : "bg-blue-500/20 text-blue-400"
-                      }`}
-                    >
-                      {isLab ? "Practical/Lab" : type || "Theory"}
-                    </span>
-                  </div>
+                  <span className="text-gray-400 text-sm font-medium">
+                    {formatRangeForUi(timeSlot)}
+                  </span>
+                  <span className="text-gray-400 text-sm font-medium">
+                    No Class
+                  </span>
                 </div>
               );
-            })}
-          </div>
-        </div>
-      </main>
+            }
 
-      {/* Mobile Nav Bottom overlay */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 p-4 flex justify-around items-center bg-[#09090b]/80 backdrop-blur-md z-50 border-t border-white/5">
-        {sidebarLinks
-          .filter((l) =>
-            [
-              "Overview",
-              "Attendance",
-              "Timetable",
-              "Marks & Grades",
-              "Calendar",
-            ].includes(l.name),
-          )
-          .map((link) => {
-            const Icon = link.icon;
-            const isActive = "Timetable" === link.name;
+            const isLab =
+              String(type).toLowerCase().includes("lab") ||
+              String(type).toLowerCase().includes("practical") ||
+              String(type).toLowerCase().includes("p");
+
             return (
-              <Link
-                key={link.name}
-                href={link.href}
-                className="flex flex-col items-center gap-1 p-2"
+              <div
+                key={`${selectedDay}-${timeSlot}`}
+                className={`flex flex-col sm:flex-row sm:justify-between p-5 rounded-xl border border-white/5 shadow-md gap-4 ${
+                  isLab ? "bg-[#2A1612]" : "bg-[#181C25]"
+                }`}
               >
-                <Icon
-                  size={20}
-                  className={isActive ? "text-white" : "text-gray-500"}
-                />
-                {isActive && (
-                  <div className="w-1 h-1 rounded-full bg-white mt-1"></div>
-                )}
-              </Link>
+                <div className="flex flex-col justify-between">
+                  <h3 className="text-base font-bold text-white mb-2">
+                    {title}
+                  </h3>
+                  <div className="text-sm text-gray-400 font-medium mb-2 flex items-center gap-2">
+                    <span>
+                      {code}
+                      {faculty ? ` • ${faculty}` : ""}
+                    </span>
+                  </div>
+                  <div className="text-sm text-gray-400 flex items-center gap-1.5">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                      className="w-4 h-4 text-gray-500"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M9.69 18.933l.003.001C9.89 19.02 10 19 10 19s.11.02.308-.066l.002-.001.006-.003.018-.008a5.741 5.741 0 00.281-.14c.186-.096.446-.24.757-.433.62-.384 1.445-.966 2.274-1.765C15.302 14.988 17 12.493 17 9A7 7 0 103 9c0 3.492 1.698 5.988 3.355 7.584a13.731 13.731 0 002.273 1.765 11.842 11.842 0 00.976.544l.062.029.018.008.006.003zM10 11.25a2.25 2.25 0 100-4.5 2.25 2.25 0 000 4.5z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    {room || "NA"}
+                  </div>
+                </div>
+
+                <div className="flex flex-row sm:flex-col sm:items-end justify-between items-center sm:gap-0 mt-2 sm:mt-0">
+                  <span className="text-gray-300 text-sm font-semibold sm:mb-4">
+                    {formatRangeForUi(timeSlot)}
+                  </span>
+                  <span
+                    className={`px-3 py-1 rounded-md text-xs font-semibold ${
+                      isLab
+                        ? "bg-orange-500/20 text-orange-400"
+                        : "bg-blue-500/20 text-blue-400"
+                    }`}
+                  >
+                    {isLab ? "Practical/Lab" : type || "Theory"}
+                  </span>
+                </div>
+              </div>
             );
           })}
+        </div>
       </div>
-    </div>
+    </DashboardLayout>
   );
 }
 
