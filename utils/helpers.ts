@@ -91,7 +91,8 @@ export const fetchWithCache = (
       setState(JSON.parse(cachedData));
       const age = Date.now() - parseInt(cachedTime);
       if (age < time) {
-        return JSON.parse(cachedData);
+        resolve(JSON.parse(cachedData));
+        return;
       }
     }
 

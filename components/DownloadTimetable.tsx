@@ -6,54 +6,69 @@ import Spinner from "./spinner";
 import TimetableImage, { exportAsImage } from "./TimetableImage";
 
 export default function DownloadTimetable({ timetable, section = "" }) {
-  const icon = <Download className="w-5 h-5" />;
-  const [status, setStatus] = useState<React.ReactNode>(icon);
-  const [user, setUser] = useState({ section });
+  const [isLoading, setIsLoading] = useState(false);
+  const [localUser, setLocalUser] = useState({ section: "" });
   const [room, setRoom] = useState("");
 
+  const activeSection = section || localUser.section;
+
   const handleClick = async () => {
-    setStatus(<Spinner text={""} />);
+    if (isLoading) return; // Prevent overlapping clicks
+    setIsLoading(true);
     
-    // Fetch user section if missing
-    if (!user.section) {
-      await new Promise(async (resolve) => {
-        try {
-          await fetchWithCache(
-            "/api/user",
-            { cache: "no-store", next: { revalidate: 1 } },
-            "cache_user",
-            { setState: setUser }
-          );
-        } catch (error: any) {
+    // Fetch user section only if it's missing from BOTH the parent props and local state
+    if (!activeSection) {
+      await new Promise<void>((resolve) => {
+        fetchWithCache(
+          "/api/user",
+          { cache: "no-store", next: { revalidate: 1 } },
+          "cache_user",
+          { setState: setLocalUser }
+        )
+        .then(() => resolve())
+        .catch((error: any) => {
           if (error?.error === "Invalid cookie") {
             delCookie();
           }
-        } finally {
-          resolve(0);
-        }
+          resolve();
+        });
       });
     }
     
     const resolvedRoom = getMostCommonRoom(timetable);
     setRoom(resolvedRoom);
     
-    // Allow React a tick to render the hidden component with new state
+    // Allow React 300ms to fully build and layout the 1920x1200 grid DOM physically before serialization
     setTimeout(async () => {
-      const targetEl = document.getElementById("react-timetable-acadia");
-      if (targetEl) {
-        await exportAsImage(targetEl, `acadia-timetable.png`);
-      } else {
-        console.warn("DOM node for React Timetable missing. Falling back to legacy Canvas method.");
-        generateTimetable(timetable, user.section, "v1", true, resolvedRoom);
+      try {
+        const targetEl = document.getElementById("react-timetable-acadia");
+        if (targetEl) {
+          // Safeguard: Ensure html-to-image never hangs indefinitely
+          const success = await Promise.race([
+            exportAsImage(targetEl, `acadia-timetable.png`),
+            new Promise<boolean>((resolve) => setTimeout(() => resolve(false), 8000))
+          ]);
+          
+          if (!success) {
+            console.warn("React to Image export failed or timed out. Falling back to legacy Canvas method.");
+            generateTimetable(timetable, activeSection || localUser.section, "v1", true, resolvedRoom);
+          }
+        } else {
+          console.warn("DOM node for React Timetable missing. Falling back to legacy Canvas method.");
+          generateTimetable(timetable, activeSection || localUser.section, "v1", true, resolvedRoom);
+        }
+      } catch (err) {
+        console.error("Critical download error: ", err);
+      } finally {
+        setIsLoading(false);
       }
-      setStatus(icon);
-    }, 100);
+    }, 300);
   };
 
   return (
     <div className="cursor-pointer flex items-center justify-center p-1" title="download timetable">
       <div onClick={handleClick} className="hover:text-white transition-colors">
-        {status}
+        {isLoading ? <Spinner text={""} /> : <Download className="w-5 h-5" />}
       </div>
       
       {/* Hidden container for rendering the React image blueprint off-screen */}
@@ -62,7 +77,7 @@ export default function DownloadTimetable({ timetable, section = "" }) {
           <div id="react-timetable-acadia">
             <TimetableImage 
               timetable={timetable} 
-              section={user.section || section} 
+              section={activeSection} 
               room={room} 
             />
           </div>
