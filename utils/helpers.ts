@@ -111,6 +111,11 @@ export const fetchWithCache = (
 import cookie from "js-cookie";
 export function delCookie(redirection = true) {
   localStorage.clear();
+    cookie.remove("token", {
+    domain: ".acadia.works",
+    path: "/",
+  });
+  cookie.remove("token", { path: "/" });
   cookie.remove("token");
   cookie.remove("batch");
   if ("caches" in window) {
