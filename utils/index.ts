@@ -4,6 +4,7 @@ import cheerio from "cheerio";
 import _ from "lodash";
 import QueryString from "qs";
 import { CookieJar } from "tough-cookie";
+import { MOCK_TOKEN, mockAttendance, mockDayorder, mockMarks, mockPlanner, mockTimetable, mockUserDetails } from "./mockData";
 
 type cookieResponse = {
   cookies: string;
@@ -23,6 +24,9 @@ async function getXcsrfTokenFromJar(jar: CookieJar): Promise<string> {
   return `iamcsrcoo=${iamcsrcoo}`;
 }
 export async function getCookie(username, password): Promise<cookieResponse> {
+  if (username === "mock@srmist.edu.in" || username === "mock") {
+    return { cookies: MOCK_TOKEN, message: "" };
+  }
   return new Promise(async (resolve, reject) => {
     try {
       const jar = new CookieJar();
@@ -492,6 +496,7 @@ type Section = {
 };
 
 export async function getAttendance(cookie): Promise<Section[]> {
+  if (cookie === MOCK_TOKEN) return mockAttendance as any;
   return new Promise(async (resolve, reject) => {
     try {
       const config3 = {
@@ -611,6 +616,7 @@ export async function getTimetable(
   regno,
   section,
 ): Promise<Timetable> {
+  if (cookie === MOCK_TOKEN) return mockTimetable as any;
   return new Promise(async (resolve, reject) => {
     try {
       const [match, timetableResponse] = await Promise.all([
@@ -773,6 +779,7 @@ export async function getCourseName(cookie, c = false) {
   });
 }
 export async function getMarks(cookie) {
+  if (cookie === MOCK_TOKEN) return mockMarks;
   return new Promise(async (resolve, reject) => {
     try {
       const [cName, timetableResponse] = await Promise.all([
@@ -839,6 +846,7 @@ export async function getMarks(cookie) {
   });
 }
 export async function getDo(cookie): Promise<string> {
+  if (cookie === MOCK_TOKEN) return mockDayorder;
   return new Promise(async (resolve, reject) => {
     try {
       const config3 = {
@@ -879,6 +887,7 @@ type UserDetails = {
   section: string;
 };
 export async function getUserDetails(cookie): Promise<UserDetails> {
+  if (cookie === MOCK_TOKEN) return mockUserDetails;
   return new Promise(async (resolve, reject) => {
     try {
       const [section, timetableResponse] = await Promise.all([
@@ -991,6 +1000,7 @@ export async function getPlanner(
   cookie,
   code = "Academic_Planner_2024_25_EVEN",
 ) {
+  if (cookie === MOCK_TOKEN) return mockPlanner;
   if (!code) {
     code = "Academic_Planner_2024_25_EVEN";
   }
