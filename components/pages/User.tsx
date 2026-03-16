@@ -1,4 +1,5 @@
 "use client";
+
 import DashboardLayout from "@/components/DashboardLayout";
 import UserLoader from "@/components/Loaders/userLoader";
 import useFetchWithCache from "@/hooks/useFetchWithCache";
@@ -8,9 +9,36 @@ import {
   Clock,
   Download,
   GraduationCap,
+  MapPin,
   TrendingUp,
+  User as UserIcon,
 } from "lucide-react";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
+
+const parseTimeRange = (timeStr: string) => {
+  if (!timeStr) return null;
+  const parts = timeStr.split("-").map((s) => s.trim());
+  if (parts.length !== 2) return null;
+
+  const parseTime = (str: string) => {
+    const match = str.match(/(\d{1,2}):(\d{2})/);
+    if (!match) return null;
+    let hours = parseInt(match[1], 10);
+    const minutes = parseInt(match[2], 10);
+    if (str.toLowerCase().includes("pm") && hours < 12) hours += 12;
+    if (str.toLowerCase().includes("am") && hours === 12) hours = 0;
+
+    const d = new Date();
+    d.setHours(hours, minutes, 0, 0);
+    return d;
+  };
+
+  const start = parseTime(parts[0]);
+  const end = parseTime(parts[1]);
+
+  if (!start || !end) return null;
+  return { start, end };
+};
 
 export default function User() {
   const { data, loading, error } = useFetchWithCache(
@@ -39,6 +67,13 @@ export default function User() {
     "cache_tt",
     1000 * 60 * 60,
   );
+
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 60000);
+    return () => clearInterval(timer);
+  }, []);
 
   const todayDate = new Date().toLocaleDateString("en-US", {
     weekday: "long",
@@ -136,7 +171,6 @@ export default function User() {
       dayorderData.do === "N"
     )
       return [];
-    // Timetable data is keyed by day order index (0-4)
     const doKey = dayorderData.do as string;
     const dayIndex = parseInt(doKey) - 1;
     if (
@@ -147,7 +181,6 @@ export default function User() {
     )
       return [];
     const daySchedule = timetableData.data[dayIndex];
-    // Convert the day schedule object to an array of items
     const items = Object.entries(daySchedule).map(
       ([time, course]: [string, any]) => ({
         time,
@@ -161,6 +194,59 @@ export default function User() {
     items.sort((a, b) => a.time.localeCompare(b.time));
     return items;
   }, [timetableData, dayorderData]);
+
+  const { currentClass, nextClass, remainingClasses } = useMemo(() => {
+    if (!currentSchedule || currentSchedule.length === 0)
+      return { currentClass: null, nextClass: null, remainingClasses: [] };
+
+    let current = null;
+    let next = null;
+    let nextIdx = -1;
+
+    for (let i = 0; i < currentSchedule.length; i++) {
+      const cls = currentSchedule[i];
+      const timeRange = parseTimeRange(cls.time);
+      if (timeRange) {
+        if (currentTime >= timeRange.start && currentTime <= timeRange.end) {
+          current = cls;
+        } else if (currentTime < timeRange.start && !next) {
+          next = cls;
+          nextIdx = i;
+        }
+      }
+    }
+
+    // If we couldn't find a next class based on time, but no current class either,
+    // maybe all classes are in the future or past.
+    // Let's refine the next logic:
+    if (!next) {
+      for (let i = 0; i < currentSchedule.length; i++) {
+        const timeRange = parseTimeRange(currentSchedule[i].time);
+        if (timeRange && currentTime < timeRange.start) {
+          next = currentSchedule[i];
+          nextIdx = i;
+          break;
+        }
+      }
+    }
+
+    return {
+      currentClass: current,
+      nextClass: next,
+      remainingClasses: currentSchedule,
+    };
+  }, [currentSchedule, currentTime]);
+
+  const getStartsIn = (timeStr: string) => {
+    const timeRange = parseTimeRange(timeStr);
+    if (!timeRange) return "";
+    const diffMs = timeRange.start.getTime() - currentTime.getTime();
+    if (diffMs <= 0) return "Starting soon";
+    const hours = Math.floor(diffMs / (1000 * 60 * 60));
+    const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+    if (hours > 0) return `Starts in ${hours} hrs ${minutes} mins`;
+    return `Starts in ${minutes} mins`;
+  };
 
   if (
     (!data && loading) ||
@@ -255,7 +341,7 @@ export default function User() {
           </div>
         </div>
 
-        {/* Today's Schedule Section */}
+        {/* Schedule Section */}
         <div style={{ animationDelay: "200ms" }}>
           <div className="flex justify-between items-center mb-6">
             <div className="flex items-center gap-2">
@@ -296,43 +382,179 @@ export default function User() {
               </div>
             </>
           ) : (
-            <div className="flex flex-col gap-3 mb-20">
-              {currentSchedule.length > 0 ? (
-                currentSchedule.map((course: any, idx: number) => (
-                  <div
-                    key={idx}
-                    className="p-4 rounded-xl bg-white/5 border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-                  >
-                    <div>
-                      <div className="flex items-center gap-3 mb-1">
-                        <span className="font-bold text-white">
-                          {course.courseName}
-                        </span>
-                        <span className="px-2 py-0.5 rounded bg-blue-500/20 text-blue-400 text-xs font-medium border border-blue-500/20">
-                          {course.courseCode}
-                        </span>
-                      </div>
-                      <div className="text-gray-400 text-sm flex items-center gap-2">
-                        <span>{course.facultyName}</span>
-                        <span className="w-1 h-1 rounded-full bg-gray-600"></span>
-                        <span>{course.roomNo}</span>
-                      </div>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-20">
+              {/* Highlight Cards (Current & Next) */}
+              <div className="lg:col-span-1 flex flex-col gap-6">
+                {currentClass ? (
+                  <div className="p-6 rounded-2xl bg-gradient-to-br from-[#092218] to-[#04120c] border border-[#112a20] relative overflow-hidden shadow-[0_0_15px_rgba(34,197,94,0.1)]">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-[#22c55e]/10 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none"></div>
+                    <div className="flex items-center gap-2 mb-4">
+                      <div className="w-2 h-2 rounded-full bg-[#22c55e] animate-pulse"></div>
+                      <span className="text-xs font-bold text-[#22c55e] tracking-wider uppercase">
+                        Current Class
+                      </span>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <div className="px-3 py-1.5 rounded-lg bg-[#0d0d12] border border-white/10 text-sm font-medium text-gray-300">
-                        {course.slot}
+                    <h3 className="text-xl font-bold text-white mb-1 leading-tight">
+                      {currentClass.courseName}
+                    </h3>
+                    <div className="text-[#22c55e] font-medium text-sm mb-5">
+                      {currentClass.time}
+                    </div>
+
+                    <div className="flex flex-col gap-3">
+                      <div className="flex items-center gap-3 text-gray-300">
+                        <MapPin className="w-4 h-4 text-gray-500" />
+                        <span className="text-sm">{currentClass.roomNo}</span>
                       </div>
-                      <div className="px-3 py-1.5 rounded-lg bg-[#0d0d12] border border-white/10 text-sm font-medium text-gray-300">
-                        {course.time}
+                      <div className="flex items-center gap-3 text-gray-300">
+                        <UserIcon className="w-4 h-4 text-gray-500" />
+                        <span className="text-sm truncate">
+                          {currentClass.facultyName}
+                        </span>
                       </div>
                     </div>
                   </div>
-                ))
-              ) : (
-                <p className="text-gray-500 text-sm py-8 text-center border border-white/5 rounded-xl bg-white/[0.02]">
-                  No schedule available for today.
-                </p>
-              )}
+                ) : (
+                  <div className="p-6 rounded-2xl bg-[#0d0d12] border border-white/5 relative overflow-hidden">
+                    <div className="flex items-center gap-2 mb-4">
+                      <div className="w-2 h-2 rounded-full bg-gray-600"></div>
+                      <span className="text-xs font-bold text-gray-500 tracking-wider uppercase">
+                        Current Status
+                      </span>
+                    </div>
+                    <h3 className="text-lg font-medium text-gray-300">
+                      No active class right now
+                    </h3>
+                  </div>
+                )}
+
+                {nextClass ? (
+                  <div className="p-6 rounded-2xl bg-gradient-to-br from-[#0a1835] to-[#050c1f] border border-[#10203a] relative overflow-hidden shadow-[0_0_15px_rgba(59,130,246,0.1)]">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-[#3b82f6]/10 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none"></div>
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-2">
+                        <Clock className="w-3.5 h-3.5 text-[#3b82f6]" />
+                        <span className="text-xs font-bold text-[#3b82f6] tracking-wider uppercase">
+                          Next Up
+                        </span>
+                      </div>
+                      <span className="text-xs font-semibold px-2 py-1 rounded bg-[#3b82f6]/10 text-[#3b82f6]">
+                        {getStartsIn(nextClass.time)}
+                      </span>
+                    </div>
+                    <h3 className="text-xl font-bold text-white mb-1 leading-tight">
+                      {nextClass.courseName}
+                    </h3>
+                    <div className="text-[#3b82f6] font-medium text-sm mb-5">
+                      {nextClass.time}
+                    </div>
+
+                    <div className="flex flex-col gap-3">
+                      <div className="flex items-center gap-3 text-gray-300">
+                        <MapPin className="w-4 h-4 text-gray-500" />
+                        <span className="text-sm">{nextClass.roomNo}</span>
+                      </div>
+                      <div className="flex items-center gap-3 text-gray-300">
+                        <UserIcon className="w-4 h-4 text-gray-500" />
+                        <span className="text-sm truncate">
+                          {nextClass.facultyName}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="p-6 rounded-2xl bg-[#0d0d12] border border-white/5 relative overflow-hidden">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Clock className="w-3.5 h-3.5 text-gray-500" />
+                      <span className="text-xs font-bold text-gray-500 tracking-wider uppercase">
+                        Next Up
+                      </span>
+                    </div>
+                    <h3 className="text-gray-400 text-sm">
+                      No more classes scheduled today.
+                    </h3>
+                  </div>
+                )}
+              </div>
+
+              {/* Full Day Schedule List */}
+              <div className="lg:col-span-2">
+                <div className="p-5 rounded-2xl bg-[#0d0d12] border border-white/5 h-full">
+                  <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-6 border-b border-white/5 pb-4">
+                    Full Schedule
+                  </h3>
+                  <div className="flex flex-col gap-3 h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                    {remainingClasses.length > 0 ? (
+                      remainingClasses.map((course: any, idx: number) => {
+                        const isCurrent = currentClass === course;
+                        const isNext = nextClass === course;
+
+                        return (
+                          <div
+                            key={idx}
+                            className={`p-4 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all ${
+                              isCurrent
+                                ? "bg-[#092218] border-[#112a20] shadow-[0_0_10px_rgba(34,197,94,0.05)]"
+                                : isNext
+                                  ? "bg-[#0a1835] border-[#10203a]"
+                                  : "bg-white/[0.02] border-white/5 hover:bg-white/[0.04]"
+                            }`}
+                          >
+                            <div className="flex gap-4 items-center">
+                              <div
+                                className={`w-14 h-14 rounded-lg flex flex-col items-center justify-center flex-shrink-0 ${
+                                  isCurrent
+                                    ? "bg-[#0c3022] text-[#22c55e]"
+                                    : isNext
+                                      ? "bg-[#0d224d] text-[#3b82f6]"
+                                      : "bg-white/5 text-gray-400"
+                                }`}
+                              >
+                                <span className="text-xs font-semibold">
+                                  {course.time.split("-")[0]}
+                                </span>
+                              </div>
+                              <div>
+                                <div className="flex items-center gap-3 mb-1">
+                                  <span
+                                    className={`font-bold ${isCurrent ? "text-white" : isNext ? "text-white" : "text-gray-200"}`}
+                                  >
+                                    {course.courseName}
+                                  </span>
+                                </div>
+                                <div className="text-gray-400 text-xs flex items-center gap-2">
+                                  <span className="px-1.5 py-0.5 rounded bg-white/5 border border-white/5">
+                                    {course.courseCode}
+                                  </span>
+                                  <span className="w-1 h-1 rounded-full bg-gray-600"></span>
+                                  <span>{course.roomNo}</span>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <div
+                                className={`px-3 py-1.5 rounded-lg border text-xs font-medium ${
+                                  isCurrent
+                                    ? "bg-[#22c55e]/10 border-[#22c55e]/20 text-[#22c55e]"
+                                    : isNext
+                                      ? "bg-[#3b82f6]/10 border-[#3b82f6]/20 text-[#3b82f6]"
+                                      : "bg-[#0d0d12] border-white/10 text-gray-400"
+                                }`}
+                              >
+                                {course.slot}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })
+                    ) : (
+                      <p className="text-gray-500 text-sm py-8 text-center border border-white/5 rounded-xl bg-white/[0.02]">
+                        No schedule available for today.
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
             </div>
           )}
         </div>
