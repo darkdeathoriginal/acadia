@@ -245,7 +245,7 @@ export default function Timetable({ tm = false, section }) {
               return;
             }
 
-            const normalizedDayOrder = normalizeDayKey(String(value));
+            const normalizedDayOrder =(String(value));
             setDayOrder(normalizedDayOrder);
             setSelectedDay(normalizedDayOrder);
           },
