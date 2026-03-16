@@ -46,8 +46,8 @@ export default function Login() {
   // Redirect if already logged in
   useEffect(() => {
     const token = cookie.get("token");
-    if (token) router.replace("/attendance");
-  }, [router]);
+    if (token) router.replace(redirect);
+  }, [router, redirect]);
 
   const handleResetPassword = async (data: FormData) => {
     setErr("");
