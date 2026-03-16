@@ -107,7 +107,11 @@ export default function Login() {
         return;
       }
 
-      cookie.set("token", data.token, { expires: 30 });
+      cookie.set("token", data.token, {
+        expires: 30,
+        domain: ".acadia.works",
+        path: "/",
+      });
       router.push(redirect);
     } catch (e: any) {
       setErr(e.message || "Something went wrong");
@@ -133,7 +137,11 @@ export default function Login() {
 
       if (data.error) throw new Error(data.error);
 
-      cookie.set("token", data.token, { expires: 30 });
+      cookie.set("token", data.token, {
+        expires: 30,
+        domain: ".acadia.works",
+        path: "/",
+      });
       router.push(redirect);
     } catch (e: any) {
       setErr(e.message || "Failed to logout other sessions");
