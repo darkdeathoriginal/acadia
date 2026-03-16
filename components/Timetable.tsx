@@ -325,15 +325,10 @@ export default function Timetable({ tm = false, section }) {
   useEffect(() => {
     if (!dayKeys.length) return;
 
-    if (dayOrder && dayKeys.includes(dayOrder)) {
-      setSelectedDay(dayOrder);
-      return;
-    }
-
     if (!dayKeys.includes(selectedDay)) {
       setSelectedDay(dayKeys[0]);
     }
-  }, [dayKeys, dayOrder, selectedDay]);
+  }, [dayKeys, selectedDay]);
 
   const currentSlots = useMemo(() => {
     if (!formattedData || !selectedDay || !formattedData[selectedDay])
@@ -345,8 +340,13 @@ export default function Timetable({ tm = false, section }) {
     <DashboardLayout user={user} activeTab="Timetable">
       <div className="px-6 md:px-10 pb-20 pt-2 lg:pt-0 max-w-4xl w-full mx-auto md:mx-0">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-          <h2 className="text-xl font-bold text-white tracking-tight">
-            Day Order {selectedDay}
+          <h2 className="text-xl font-bold text-white tracking-tight flex items-center gap-3">
+            Day Order {dayOrder || selectedDay}
+            {loadingText && (
+              <span className="text-sm text-gray-400 font-medium animate-pulse">
+                {loadingText}
+              </span>
+            )}
           </h2>
 
           <div className="flex flex-wrap items-center gap-2">
