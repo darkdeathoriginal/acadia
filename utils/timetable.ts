@@ -16,6 +16,10 @@ const timing = [
   "05:30 - 06:10",
 ];
 
+/**
+ * @deprecated The canvas timetable has been replaced by React-to-Image in `TimetableImage.tsx`. 
+ * Retained for fallback purposes as requested by user.
+ */
 export function generateTimetable(
   tm,
   section,

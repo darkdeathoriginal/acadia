@@ -1,35 +1,31 @@
-import { delCookie, fetchWithCache } from "@/utils/helpers";
-import { generateTimetable, variants } from "@/utils/timetable";
+import { fetchWithCache, delCookie } from "@/utils/helpers";
+import { generateTimetable } from "@/utils/timetable";
 import { Download } from "lucide-react";
-import React, { useEffect, useRef, useState } from "react";
-import HorizontalScroll from "./HorizontalScroll";
-import CustomModal from "./Modal";
+import React, { useState } from "react";
 import Spinner from "./spinner";
+import TimetableImage, { exportAsImage } from "./TimetableImage";
 
 export default function DownloadTimetable({ timetable, section = "" }) {
-  const icon = <Download className="" />;
-  const [temp, setTemp] = useState(icon);
+  const icon = <Download className="w-5 h-5" />;
+  const [status, setStatus] = useState<React.ReactNode>(icon);
   const [user, setUser] = useState({ section });
-  const [showModal, setShowModal] = useState(false);
-  const [position, setPosition] = useState(0);
-  const [percentage, setPercentage] = useState(0);
   const [room, setRoom] = useState("");
+
   const handleClick = async () => {
-    setTemp(<Spinner text={""} />);
+    setStatus(<Spinner text={""} />);
+    
+    // Fetch user section if missing
     if (!user.section) {
-      new Promise(async (resolve, reject) => {
+      await new Promise(async (resolve) => {
         try {
           await fetchWithCache(
             "/api/user",
-            {
-              cache: "no-store",
-              next: { revalidate: 1 },
-            },
+            { cache: "no-store", next: { revalidate: 1 } },
             "cache_user",
             { setState: setUser }
           );
-        } catch (error) {
-          if (error?.error == "Invalid cookie") {
+        } catch (error: any) {
+          if (error?.error === "Invalid cookie") {
             delCookie();
           }
         } finally {
@@ -37,107 +33,61 @@ export default function DownloadTimetable({ timetable, section = "" }) {
         }
       });
     }
-    setRoom(getMostCommonRoom(timetable));
-    setTemp(icon);
-    setShowModal(true);
-    return;
+    
+    const resolvedRoom = getMostCommonRoom(timetable);
+    setRoom(resolvedRoom);
+    
+    // Allow React a tick to render the hidden component with new state
+    setTimeout(async () => {
+      const targetEl = document.getElementById("react-timetable-acadia");
+      if (targetEl) {
+        await exportAsImage(targetEl, `acadia-timetable.png`);
+      } else {
+        console.warn("DOM node for React Timetable missing. Falling back to legacy Canvas method.");
+        generateTimetable(timetable, user.section, "v1", true, resolvedRoom);
+      }
+      setStatus(icon);
+    }, 100);
   };
+
   return (
-    <div className="cursor-pointer" title="download timetable">
-      <div onClick={() => handleClick()}>{temp}</div>
-      {user && timetable && (
-        <CustomModal
-          isOpen={showModal}
-          onRequestClose={() => setShowModal(false)}
-        >
-          {showModal && (
-            <div className="flex flex-col gap-3 items-center">
-              <HorizontalScroll
-                elements={variants.map((v, i) => {
-                  return (
-                    <CreateCanvas
-                      user={user}
-                      timetable={timetable}
-                      variant={v}
-                      room={room}
-                      key={i}
-                    />
-                  );
-                })}
-                position={position}
-                setPercentage={setPercentage}
-                setPosition={setPosition}
-                updatePosition={true}
-              />
-              <div className="flex gap-3">
-                <button
-                  className="p-2 bg-red-400 hidden lg:block rounded-md"
-                  onClick={() => {
-                    setShowModal(false);
-                  }}
-                >
-                  Close
-                </button>
-                <button
-                  className="p-2 bg-blue-400 rounded-md"
-                  onClick={() => {
-                    generateTimetable(
-                      timetable,
-                      user.section,
-                      variants[position],
-                      true,
-                      room
-                    );
-                  }}
-                >
-                  download
-                </button>
-              </div>
-            </div>
-          )}
-        </CustomModal>
-      )}
+    <div className="cursor-pointer flex items-center justify-center p-1" title="download timetable">
+      <div onClick={handleClick} className="hover:text-white transition-colors">
+        {status}
+      </div>
+      
+      {/* Hidden container for rendering the React image blueprint off-screen */}
+      <div className="absolute top-[-9999px] left-[-9999px] opacity-0 pointer-events-none">
+        {timetable && (
+          <div id="react-timetable-acadia">
+            <TimetableImage 
+              timetable={timetable} 
+              section={user.section || section} 
+              room={room} 
+            />
+          </div>
+        )}
+      </div>
     </div>
   );
 }
-function CreateCanvas({ user, timetable, variant, room }) {
-  const canvasRef = useRef(null);
-  const [isRendered, setIsRendered] = useState(false);
-  useEffect(() => {
-    const canvas = generateTimetable(
-      timetable,
-      user.section,
-      variant,
-      false,
-      room
-    );
-    canvas.className = "w-[100%] lg:w-[60%] object-contain";
-    canvasRef.current.replaceChildren(canvas);
-    setIsRendered(true);
-  }, [room, timetable, user, variant]);
-  return (
-    <div
-      ref={canvasRef}
-      className=" p-1 flex flex-col items-center justify-center"
-    ></div>
-  );
-}
-function getMostCommonRoom(data) {
-  const roomCounts = {};
 
-  Object.values(data).forEach((day) => {
-    Object.values(day).forEach((slot) => {
+function getMostCommonRoom(data: any) {
+  const roomCounts: Record<string, number> = {};
+
+  Object.values(data || {}).forEach((day: any) => {
+    Object.values(day || {}).forEach((slot: any) => {
       const room = slot.room;
       if (!room) return;
       roomCounts[room] = (roomCounts[room] || 0) + 1;
     });
   });
 
-  let mostCommonRoom;
+  let mostCommonRoom = "";
   let maxCount = 0;
-  Object.entries(roomCounts).forEach(([room, count]: [string, number]) => {
+  Object.entries(roomCounts).forEach(([r, count]) => {
     if (count > maxCount) {
-      mostCommonRoom = room;
+      mostCommonRoom = r;
       maxCount = count;
     }
   });
