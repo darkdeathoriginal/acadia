@@ -116,7 +116,11 @@ export default function Login() {
         return;
       }
 
-      cookie.set("token", data.token, { expires: 30 });
+      cookie.set("token", data.token, {
+        expires: 30,
+        domain: ".acadia.works",
+        path: "/",
+      });
       router.push(redirect);
     } catch (e: any) {
       setErr(e.message || "Something went wrong");
