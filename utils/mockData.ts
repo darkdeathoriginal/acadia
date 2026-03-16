@@ -96,21 +96,21 @@ export const mockTimetable = {
       room: "TP101",
       credit: "4",
     },
-    "09:45 - 10:35": {
+    "01:25 - 02:15": {
       title: "Artificial Intelligence",
       code: "21CSC304J",
       type: "Theory",
       room: "TP102",
       credit: "4",
     },
-    "10:40 - 11:30": {
-      title: "Database Management Systems",
+    "02:20 - 03:10": {
+      title: "Database Management Systems and anything else",
       code: "21CSC305J",
       type: "Theory",
       room: "TP102",
       credit: "4",
     },
-    "11:35 - 12:25": {
+    "03:10 - 04:00": {
       title: "Operating Systems",
       code: "21CSC306J",
       type: "Theory",
@@ -133,21 +133,21 @@ export const mockTimetable = {
       room: "TP205",
       credit: "4",
     },
-    "09:45 - 10:35": {
+    "01:25 - 02:15": {
       title: "Computer Networks Lab",
       code: "21CSC302J",
       type: "LAB",
       room: "TP201",
       credit: "4",
     },
-    "10:40 - 11:30": {
+    "02:20 - 03:10": {
       title: "Computer Networks Lab",
       code: "21CSC302J",
       type: "LAB",
       room: "TP201",
       credit: "4",
     },
-    "11:35 - 12:25": {
+    "03:10 - 04:00": {
       title: "Software Engineering Lab",
       code: "21CSC303J",
       type: "LAB",
@@ -170,21 +170,21 @@ export const mockTimetable = {
       room: "TP102",
       credit: "4",
     },
-    "09:45 - 10:35": {
+    "01:25 - 02:15": {
       title: "Operating Systems",
       code: "21CSC306J",
       type: "Theory",
       room: "TP103",
       credit: "4",
     },
-    "10:40 - 11:30": {
+    "02:20 - 03:10": {
       title: "Operating Systems",
       code: "21CSC306J",
       type: "Theory",
       room: "TP103",
       credit: "4",
     },
-    "11:35 - 12:25": {
+    "03:10 - 04:00": {
       title: "Computer Networks",
       code: "21CSC302J",
       type: "Theory",
@@ -207,21 +207,21 @@ export const mockTimetable = {
       room: "AI Lab 1",
       credit: "4",
     },
-    "09:45 - 10:35": {
+    "01:25 - 02:15": {
       title: "Web Programming Lab",
       code: "21CSC307J",
       type: "LAB",
       room: "Web Lab",
       credit: "4",
     },
-    "10:40 - 11:30": {
+    "02:20 - 03:10": {
       title: "Web Programming Lab",
       code: "21CSC307J",
       type: "LAB",
       room: "Web Lab",
       credit: "4",
     },
-    "11:35 - 12:25": {
+    "03:10 - 04:00": {
       title: "Software Engineering",
       code: "21CSC303J",
       type: "Theory",
@@ -244,21 +244,21 @@ export const mockTimetable = {
       room: "DB Lab",
       credit: "4",
     },
-    "09:45 - 10:35": {
+    "01:25 - 02:15": {
       title: "Operating Systems Lab",
       code: "21CSC306J",
       type: "LAB",
       room: "OS Lab",
       credit: "4",
     },
-    "10:40 - 11:30": {
+    "02:20 - 03:10": {
       title: "Operating Systems Lab",
       code: "21CSC306J",
       type: "LAB",
       room: "OS Lab",
       credit: "4",
     },
-    "11:35 - 12:25": {
+    "03:10 - 04:00": {
       title: "Computer Networks",
       code: "21CSC302J",
       type: "Theory",
