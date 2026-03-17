@@ -16,7 +16,7 @@ import { useState } from "react";
 import TopBar from "./TopBar";
 
 const sidebarLinks = [
-  { name: "Overview", icon: Home, href: "/user" },
+  { name: "Overview", icon: Home, href: "/dashboard" },
   { name: "Attendance", icon: CalendarCheck, href: "/attendance" },
   { name: "Marks & Grades", icon: GraduationCap, href: "/mark" },
   { name: "Timetable", icon: BarChart3, href: "/timetable" },

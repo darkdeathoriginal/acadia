@@ -49,7 +49,7 @@ export default function Login() {
 
   const router = useRouter();
   const params = useSearchParams();
-  const redirect = params.get("redirect") || "/attendance";
+  const redirect = params.get("redirect") || "/dashboard";
 
   // Redirect if already logged in
   useEffect(() => {
