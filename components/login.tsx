@@ -109,7 +109,7 @@ export default function Login() {
 
       const hostname = window.location.hostname;
 
-const options = {
+const options:any = {
   expires: 30,
   path: "/",
 };
@@ -147,7 +147,7 @@ cookie.set("token", data.token, options);
 
       const hostname = window.location.hostname;
 
-const options = {
+const options:any = {
   expires: 30,
   path: "/",
 };
