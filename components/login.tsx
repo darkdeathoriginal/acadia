@@ -107,11 +107,19 @@ export default function Login() {
         return;
       }
 
-      cookie.set("token", data.token, {
-        expires: 30,
-        domain: ".acadia.works",
-        path: "/",
-      });
+      const hostname = window.location.hostname;
+
+const options = {
+  expires: 30,
+  path: "/",
+};
+
+// Only set domain if it's acadia.works
+if (hostname.includes("acadia.works")) {
+  options.domain = ".acadia.works";
+}
+
+cookie.set("token", data.token, options);
       router.push(redirect);
     } catch (e: any) {
       setErr(e.message || "Something went wrong");
@@ -137,11 +145,19 @@ export default function Login() {
 
       if (data.error) throw new Error(data.error);
 
-      cookie.set("token", data.token, {
-        expires: 30,
-        domain: ".acadia.works",
-        path: "/",
-      });
+      const hostname = window.location.hostname;
+
+const options = {
+  expires: 30,
+  path: "/",
+};
+
+// Only set domain if it's acadia.works
+if (hostname.includes("acadia.works")) {
+  options.domain = ".acadia.works";
+}
+
+cookie.set("token", data.token, options);
       router.push(redirect);
     } catch (e: any) {
       setErr(e.message || "Failed to logout other sessions");
