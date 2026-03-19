@@ -4,10 +4,13 @@ import {
   BarChart3,
   CalendarCheck,
   CalendarDays,
+  Github,
   GraduationCap,
   Home,
+  KeyRound,
   MessageSquare,
   Percent,
+  Send,
   X,
   Zap,
 } from "lucide-react";
@@ -24,6 +27,13 @@ const sidebarLinks = [
   { name: "Skip Pro", icon: Zap, href: "/skipcalculator" },
   { name: "GPA Calculator", icon: Percent, href: "/cgpacalculator" },
   { name: "Course Feedback", icon: MessageSquare, href: "/feedback" },
+  { name: "Reset Password", icon: KeyRound, href: "/forgot-password" },
+  {
+    name: "Github",
+    icon: Github,
+    href: "https://github.com/darkdeathoriginal/acadia",
+  },
+  { name: "Chat", icon: Send, href: "https://t.me/+8-SMvXgFfO8xNTQ9" },
 ];
 
 const mobileNavItems = [
