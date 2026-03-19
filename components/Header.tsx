@@ -29,6 +29,14 @@ export default function Header({ title }) {
       title: "Reset Password",
       link: "/forgot-password",
     },
+    {
+      title: "Github",
+      link: "https://github.com/darkdeathoriginal/acadia",
+    },
+    {
+      title: "Chat",
+      link: "https://t.me/+8-SMvXgFfO8xNTQ9",
+    },
   ];
 
   return (
