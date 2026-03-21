@@ -229,7 +229,7 @@ export default function Feedback() {
               <button
                 type="submit"
                 disabled={submitting}
-                className={`w-full px-4 py-3 mt-4 text-white font-semibold rounded-xl flex justify-center items-center transition-all ${
+                className={`w-full px-4 py-3 mt-4 text-black font-semibold rounded-xl flex justify-center items-center transition-all ${
                   submitting
                     ? "bg-white/5 text-gray-500 cursor-not-allowed border border-white/5"
                     : "bg-white text-black hover:bg-gray-200 active:scale-[0.98]"
