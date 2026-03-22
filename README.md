@@ -1,36 +1,73 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Acadia 🎓
 
-## Getting Started
+[![GitHub stars](https://img.shields.io/github/stars/darkdeathoriginal/acadia?style=flat-square)](https://github.com/darkdeathoriginal/acadia/stargazers)
+[![GitHub issues](https://img.shields.io/github/issues/darkdeathoriginal/acadia?style=flat-square)](https://github.com/darkdeathoriginal/acadia/issues)
+[![GitHub forks](https://img.shields.io/github/forks/darkdeathoriginal/acadia?style=flat-square)](https://github.com/darkdeathoriginal/acadia/network/members)
 
-First, run the development server:
+Acadia is a comprehensive student management and productivity dashboard built with Next.js. It helps students track their attendance, manage academic marks, calculate CGPA, and stay organized with a built-in planner and timetable.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## ✨ Features
+
+- **Attendance Tracking**: Monitor your attendance across all subjects.
+- **Marks Management**: Keep track of your academic performance and internal marks.
+- **CGPA Calculator**: Easily calculate and predict your CGPA.
+- **Interactive Timetable**: View your daily schedule with a clean, responsive layout.
+- **Academic Calendar**: Stay updated with important academic dates and events.
+- **PWA Support**: Installable on mobile and desktop for offline-ready access.
+- **Feedback System**: Built-in module for providing academic or system feedback.
+
+## 🛠️ Tech Stack
+
+- **Framework**: [Next.js 15+](https://nextjs.org/) (App Router)
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
+- **State Management & UI**: React Hooks, Lucide Icons
+- **Backend & API**: Next.js API Routes, Prisma ORM
+- **Data Handling**: Axios, Cheerio (for scraping/parsing), Tough Cookie
+- **Forms**: React Hook Form, Zod (Validation)
+- **Deployment**: Optimized for Vercel
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js (Latest LTS recommended)
+- npm / yarn / pnpm
+
+### Installation
+
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/darkdeathoriginal/acadia.git
+   cd acadia
+   ```
+
+2. Install dependencies:
+
+   ```bash
+   npm install
+   ```
+
+3. Run the development server:
+   ```bash
+   npm run dev
+   ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+## 📁 Project Structure
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+- `app/`: Next.js App Router pages and API routes.
+- `components/`: Reusable React components and page-specific logic.
+- `hooks/`: Custom React hooks for data fetching and local storage.
+- `lib/`: Shared contracts and library configurations.
+- `utils/`: Helper functions and type definitions.
+- `public/`: Static assets and PWA configurations.
 
-## Learn More
+## 📦 Scripts
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+- `npm run dev`: Starts the development server.
+- `npm run build`: Builds the application for production.
+- `npm run start`: Starts the production server.
+- `npm run lint`: Runs ESLint for code quality.
+- `npm run tunnel`: Opens a local tunnel via ngrok for testing.
