@@ -512,7 +512,7 @@ export async function getAttendance(cookie): Promise<Section[]> {
         .split("');function doa")[0];
       a = a.replaceAll("\\x", "%");
       a = unescape(a);
-      const ch = cheerio.load(replaceUnicodeEscapes(a));
+      const ch = getCleanedHtml(a);
       const article = [];
       let test = ch("div>table");
       test = ch("tbody>tr", test[2]);
@@ -565,6 +565,35 @@ export async function getAttendance(cookie): Promise<Section[]> {
       reject(error);
     }
   });
+}
+function getCleanedHtml(html) {
+  function decodeHtml(str) {
+    return str
+      .replace(/\\n/g, "\n") // fix newlines
+      .replace(/\\t/g, "\t") // fix tabs
+      .replace(/\\-/g, "-") // fix dashes
+      .replace(/\\"/g, '"') // fix escaped quotes
+      .replace(/\\\//g, "/"); // fix </div>
+  }
+
+  let cleaned = decodeHtml(html);
+
+  // decode HTML entities (&quot;, &amp;, etc.)
+
+  // fix merged attributes: "border=" → " border="
+  cleaned = cleaned.replace(/"(?=\w+=)/g, '" ');
+
+  // remove broken <style> blocks
+  cleaned = cleaned.replace(/<style[\s\S]*?<\/style>/gi, "");
+
+  // optional: trim junk before first tag (extra safety)
+  const firstTagIndex = cleaned.search(/<[^>]+>/);
+  if (firstTagIndex !== -1) {
+    cleaned = cleaned.slice(firstTagIndex);
+  }
+
+  // wrap properly so cheerio parses correctly
+  return cheerio.load(`<body>${cleaned}</body>`);
 }
 type Period = {
   type: string;
@@ -644,7 +673,7 @@ export async function getTimetable(
         3: {},
         4: {},
       };
-      const ch = cheerio.load(a);
+      const ch = getCleanedHtml(a);
       let test = ch("table tbody>tr");
       let f = ch("td", test[0]);
       let one = ch("td", test[3]);
@@ -742,7 +771,7 @@ export async function getCourseName(cookie, c = false) {
       a = unescape(a);
       const data = {};
 
-      const ch = cheerio.load(replaceUnicodeEscapes(a));
+      const ch = getCleanedHtml(a);
       if (c) {
         let test = ch("div>table");
         test = ch("tbody>tr", test[2]);
@@ -818,8 +847,9 @@ export async function getMarks(cookie) {
       a = a.replaceAll("\\x", "%");
       a = unescape(a);
       const data = [];
-      const ch = cheerio.load(a);
-      const table = ch(".cntdDiv>div>table").eq(3);
+      const ch = getCleanedHtml(a);
+      const table = ch("div>table").eq(3);
+
       let trs = ch("tr", table);
       trs = trs.slice(1, trs.length - 1);
       trs.each(function () {
@@ -880,7 +910,7 @@ export async function getDo(cookie): Promise<string> {
         .split("');function doa")[0];
       a = a.replaceAll("\\x", "%");
       a = unescape(a);
-      const ch = cheerio.load(a);
+      const ch = getCleanedHtml(a);
       const f = ch(`strong font[color="yellow"]`);
       const dayorder = ch(f[1]).text().split(":")[1];
       resolve(dayorder);
@@ -933,7 +963,7 @@ export async function getUserDetails(cookie): Promise<UserDetails> {
         .split("');function doa")[0];
       a = a.replaceAll("\\x", "%");
       a = unescape(a);
-      const ch = cheerio.load(a);
+      const ch = getCleanedHtml(a);
       const table = ch(".cntdDiv>div>table");
       const trs = ch("tr", table[1]);
       const roll = ch(ch("td", trs[0])[1]).text();
@@ -1049,7 +1079,7 @@ export async function getPlanner(
         .replace(/&quot;/g, '"')
         .replace(/&apos;/g, "'");
 
-      const ch = cheerio.load(a);
+      const ch = getCleanedHtml(a);
       const tbodys = ch(".mainDiv tbody");
       const tbody = isZm ? tbodys[0] : tbodys[1];
       const trs = ch("tr", tbody);
@@ -1101,7 +1131,7 @@ export async function getSection(cookie) {
       a = a.replaceAll("\\x", "%");
       a = unescape(a);
       const data = {};
-      const ch = cheerio.load(a);
+      const ch = getCleanedHtml(a);
       const tb = ch(".cntdDiv table").eq(0);
       const tr = ch("tr", tb).eq(2);
       const td = ch("td", tr).eq(3);
